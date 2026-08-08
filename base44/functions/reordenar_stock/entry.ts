@@ -3,6 +3,12 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+
+    const user = await base44.auth.me();
+    if (!user || user.role !== 'admin') {
+      return Response.json({ error: 'No autorizado' }, { status: 403 });
+    }
+
     let body;
     try { body = await req.json(); } catch (e) { body = {}; }
     const { producto_id } = body || {};

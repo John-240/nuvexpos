@@ -3,11 +3,23 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+
+    const user = await base44.auth.me();
+    if (!user || user.role !== 'admin') {
+      return Response.json({ error: 'No autorizado' }, { status: 403 });
+    }
+
     let body;
     try { body = await req.json(); } catch (e) { body = {}; }
-    const { venta_id, monto_total, metodo_pago } = body || {};
+    const { venta_id } = body || {};
 
     if (!venta_id) return Response.json({ error: 'venta_id es requerido' }, { status: 400 });
+
+    const venta = await base44.asServiceRole.entities.Ventas.get(venta_id);
+    if (!venta) return Response.json({ error: 'Venta no encontrada' }, { status: 404 });
+
+    const monto_total = venta.monto_total;
+    const metodo_pago = venta.metodo_pago;
 
     const fmt = (n) => (Number(n) || 0).toLocaleString('es-CR', { style: 'currency', currency: 'CRC', maximumFractionDigits: 2 });
 

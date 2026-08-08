@@ -4,6 +4,11 @@ export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
 
+    const user = await base44.auth.me();
+    if (!user || user.role !== 'admin') {
+      return Response.json({ error: 'No autorizado' }, { status: 403 });
+    }
+
     // Ventana del día actual en zona horaria de Costa Rica (UTC-6 fijo)
     const now = new Date();
     const parts = new Intl.DateTimeFormat('en-CA', {
