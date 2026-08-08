@@ -30,10 +30,17 @@ export default function CobroDialog({ cliente, onClose, onPaid }) {
     }
     setGuardando(true);
     try {
-      await base44.entities.Clientes.update(cliente.id, {
-        saldo_pendiente: parseFloat((saldo - pago).toFixed(2))
+      const nuevoSaldo = parseFloat((saldo - pago).toFixed(2));
+      await base44.entities.Clientes.update(cliente.id, { saldo_pendiente: nuevoSaldo });
+      await base44.entities.Abonos.create({
+        cliente_id: cliente.id,
+        nombre_cliente: cliente.nombre,
+        fecha: new Date().toISOString(),
+        monto: parseFloat(pago.toFixed(2)),
+        saldo_anterior: parseFloat(saldo.toFixed(2)),
+        saldo_resultante: nuevoSaldo
       });
-      toast({ title: 'Pago registrado', description: `${formatCurrency(pago)} abonado a ${cliente.nombre}` });
+      toast({ title: 'Abono registrado', description: `${formatCurrency(pago)} abonado a ${cliente.nombre}` });
       onPaid();
       onClose();
     } catch (e) {

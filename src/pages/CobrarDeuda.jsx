@@ -3,11 +3,12 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/lib/format';
-import { Plus, Phone, Pencil, Trash2, Wallet, History } from 'lucide-react';
+import { Plus, Phone, Pencil, Trash2, Wallet, History, Banknote } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import ClienteForm from '@/components/cobrar/ClienteForm';
 import CobroDialog from '@/components/cobrar/CobroDialog';
 import ClienteHistorialDialog from '@/components/cobrar/ClienteHistorialDialog';
+import AbonosDialog from '@/components/cobrar/AbonosDialog';
 
 export default function CobrarDeuda() {
   const { toast } = useToast();
@@ -17,6 +18,7 @@ export default function CobrarDeuda() {
   const [editando, setEditando] = useState(null);
   const [cobrar, setCobrar] = useState(null);
   const [historial, setHistorial] = useState(null);
+  const [abonosCliente, setAbonosCliente] = useState(null);
   const [deleting, setDeleting] = useState(null);
 
   const load = async () => {
@@ -116,6 +118,7 @@ export default function CobrarDeuda() {
                     </div>
                     <div className="flex gap-1 shrink-0">
                       <Button size="sm" onClick={() => setCobrar(c)} className="bg-emerald-600 hover:bg-emerald-700 h-8">Cobrar</Button>
+                      <button onClick={() => setAbonosCliente(c)} className="p-2 rounded-lg hover:bg-slate-100 text-slate-500" title="Ver abonos"><Banknote className="w-4 h-4" /></button>
                       <button onClick={() => setHistorial(c)} className="p-2 rounded-lg hover:bg-slate-100 text-slate-500" title="Ver historial"><History className="w-4 h-4" /></button>
                     </div>
                   </div>
@@ -147,6 +150,7 @@ export default function CobrarDeuda() {
                     <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${saldo > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
                       {saldo > 0 ? `Debe ${formatCurrency(saldo)}` : 'Saldado'}
                     </span>
+                    <button onClick={() => setAbonosCliente(c)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500" title="Ver abonos"><Banknote className="w-4 h-4" /></button>
                     <button onClick={() => { setEditando(c); setShowForm(true); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500"><Pencil className="w-4 h-4" /></button>
                     <button onClick={() => setDeleting(c)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-500 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                   </div>
@@ -169,6 +173,7 @@ export default function CobrarDeuda() {
 
       <CobroDialog cliente={cobrar} onClose={() => setCobrar(null)} onPaid={load} />
       <ClienteHistorialDialog cliente={historial} onClose={() => setHistorial(null)} />
+      <AbonosDialog cliente={abonosCliente} onClose={() => setAbonosCliente(null)} />
 
       <Dialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <DialogContent className="max-w-md">

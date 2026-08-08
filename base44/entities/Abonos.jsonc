@@ -1,0 +1,57 @@
+{
+  "name": "Abonos",
+  "type": "object",
+  "properties": {
+    "cliente_id": {
+      "type": "string",
+      "title": "Cliente"
+    },
+    "nombre_cliente": {
+      "type": "string",
+      "title": "Nombre del cliente"
+    },
+    "fecha": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha"
+    },
+    "monto": {
+      "type": "number",
+      "title": "Monto abonado"
+    },
+    "saldo_anterior": {
+      "type": "number",
+      "title": "Saldo anterior"
+    },
+    "saldo_resultante": {
+      "type": "number",
+      "title": "Saldo resultante"
+    },
+    "notas": {
+      "type": "string",
+      "title": "Notas"
+    }
+  },
+  "required": [
+    "cliente_id",
+    "monto"
+  ],
+  "rls": {
+    "read": null,
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
