@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Store, LogOut, History, Wallet } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Store, LogOut, History, Wallet, Settings } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { cn } from '@/lib/utils';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -11,6 +11,7 @@ const allNavItems = [
   { label: 'Punto de Venta', path: '/venta', icon: ShoppingCart, admin: false },
   { label: 'Historial de Ventas', path: '/historial', icon: History, admin: true },
   { label: 'Gastos', path: '/gastos', icon: Wallet, admin: true },
+  { label: 'Configuración', path: '/configuracion', icon: Settings, admin: true },
 ];
 
 export default function Layout() {

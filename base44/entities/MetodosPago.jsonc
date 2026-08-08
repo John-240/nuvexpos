@@ -1,0 +1,36 @@
+{
+  "name": "MetodosPago",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre del m\u00e9todo de pago"
+    },
+    "activo": {
+      "type": "boolean",
+      "default": true,
+      "title": "Activo"
+    }
+  },
+  "required": [
+    "nombre"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

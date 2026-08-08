@@ -5,6 +5,7 @@ import { Package, DollarSign, TrendingUp, AlertTriangle, ShoppingCart, Plus, Arr
 import { formatCurrency, formatDate, isToday } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import RestockDialog from '@/components/dashboard/RestockDialog';
+import DashboardCharts from '@/components/dashboard/DashboardCharts';
 
 export default function Dashboard() {
   const [productos, setProductos] = useState([]);
@@ -146,6 +147,9 @@ export default function Dashboard() {
           <div><p className="text-slate-400">Gastos</p><p className="font-semibold text-amber-400">-{formatCurrency(gastosMes)}</p></div>
         </div>
       </div>
+
+      {/* Gráficos */}
+      <DashboardCharts ventas={ventas} gastos={gastos} detalles={detalles} productos={productos} />
 
       {/* Quick access */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

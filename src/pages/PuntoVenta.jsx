@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Send, CheckCircle2, X, AlertCircle } from 'lucide-react';
+import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Send, CheckCircle2, X, AlertCircle, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency } from '@/lib/format';
@@ -10,15 +10,12 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 
-const METODOS = [
-  { value: 'Efectivo', icon: Banknote },
-  { value: 'Tarjeta', icon: CreditCard },
-  { value: 'Transferencia', icon: Send }
-];
+const ICONOS_PAGO = { Efectivo: Banknote, Tarjeta: CreditCard, Transferencia: Send };
 
 export default function PuntoVenta() {
   const { toast } = useToast();
   const [productos, setProductos] = useState([]);
+  const [metodos, setMetodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState('');
   const [carrito, setCarrito] = useState([]);
@@ -32,8 +29,16 @@ export default function PuntoVenta() {
 
   const load = async () => {
     try {
-      const data = await base44.entities.Productos.list();
+      const [data, metodosData] = await Promise.all([
+        base44.entities.Productos.list(),
+        base44.entities.MetodosPago.list()
+      ]);
       setProductos(data);
+      const activos = (metodosData || []).filter((m) => m.activo !== false);
+      setMetodos(activos);
+      if (activos.length && !activos.some((m) => m.nombre === metodoPago)) {
+        setMetodoPago(activos[0].nombre);
+      }
     } finally {
       setLoading(false);
     }
@@ -243,20 +248,22 @@ export default function PuntoVenta() {
               <div>
                 <p className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Método de pago</p>
                 <div className="grid grid-cols-3 gap-2">
-                  {METODOS.map((m) => {
-                    const Icon = m.icon;
-                    const active = metodoPago === m.value;
+                  {(metodos.length
+                    ? metodos.map((m) => ({ nombre: m.nombre, Icon: ICONOS_PAGO[m.nombre] || Wallet }))
+                    : Object.keys(ICONOS_PAGO).map((nombre) => ({ nombre, Icon: ICONOS_PAGO[nombre] }))
+                  ).map(({ nombre, Icon }) => {
+                    const active = metodoPago === nombre;
                     return (
                       <button
-                        key={m.value}
-                        onClick={() => setMetodoPago(m.value)}
+                        key={nombre}
+                        onClick={() => setMetodoPago(nombre)}
                         className={cn(
                           'flex flex-col items-center gap-1 py-2.5 rounded-xl border text-xs font-medium transition-colors',
                           active ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'
                         )}
                       >
                         <Icon className="w-4 h-4" />
-                        {m.value}
+                        {nombre}
                       </button>
                     );
                   })}

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +16,10 @@ export default function ProductForm({ onSubmit, initialData, onCancel }) {
     stock_minimo: initialData?.stock_minimo ?? ''
   });
   const [error, setError] = useState('');
+  const [categorias, setCategorias] = useState([]);
+  useEffect(() => {
+    base44.entities.Categorias.list().then(setCategorias).catch(() => {});
+  }, []);
 
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
@@ -46,7 +51,10 @@ export default function ProductForm({ onSubmit, initialData, onCancel }) {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="categoria">Categoría</Label>
-          <Input id="categoria" value={form.categoria} onChange={(e) => set('categoria', e.target.value)} placeholder="Ej: Lácteos" />
+          <Input id="categoria" value={form.categoria} onChange={(e) => set('categoria', e.target.value)} placeholder="Ej: Lácteos" list="lista-categorias" />
+          <datalist id="lista-categorias">
+            {categorias.map((c) => <option key={c.id} value={c.nombre} />)}
+          </datalist>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="precio_costo">Precio de costo</Label>
