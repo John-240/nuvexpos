@@ -1,0 +1,42 @@
+{
+  "name": "Aprobaci\u00f3n de Ventas Mayores a 500",
+  "description": "Cuando se registra una venta cuyo monto supera 500, env\u00eda una solicitud de aprobaci\u00f3n al gerente por correo y crea una alerta.",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "Ventas",
+      "events": [
+        "create"
+      ]
+    },
+    "condition": "${ .trigger.data.monto_total > 500 }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "aprobacion_venta_grande",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "solicitar_aprobacion": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "solicitar_aprobacion_venta",
+            "args": {
+              "venta_id": "${ .trigger.entity_id }",
+              "monto_total": "${ .trigger.data.monto_total }",
+              "metodo_pago": "${ .trigger.data.metodo_pago }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Solicitar aprobaci\u00f3n al gerente",
+            "description": "Correo + alerta para venta > 500"
+          }
+        }
+      }
+    ]
+  }
+}

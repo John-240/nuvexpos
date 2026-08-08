@@ -1,0 +1,40 @@
+{
+  "name": "Reposici\u00f3n Autom\u00e1tica de Stock",
+  "description": "Cuando el stock de un producto baja a su m\u00ednimo, crea una alerta para el gerente e inicia autom\u00e1ticamente un gasto de compra de reposici\u00f3n.",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "Productos",
+      "events": [
+        "update"
+      ]
+    },
+    "condition": "${ .trigger.data.stock_actual <= .trigger.data.stock_minimo and .trigger.old_data.stock_actual > .trigger.old_data.stock_minimo }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "reorden_stock",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "reordenar": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "reordenar_stock",
+            "args": {
+              "producto_id": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Reponer stock del producto",
+            "description": "Alerta + gasto de reposici\u00f3n"
+          }
+        }
+      }
+    ]
+  }
+}

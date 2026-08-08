@@ -1,0 +1,45 @@
+{
+  "description": "Cada d\u00eda a las 8 PM calcula el total de ventas y gastos del d\u00eda y env\u00eda un reporte por correo al due\u00f1o con el margen de ganancia neta.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 20 * * *",
+      "one_time_date": null,
+      "timezone": "America/Costa_Rica",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "name": "Reporte Diario de Operaciones",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "reporte_diario",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "calcular_reporte": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "calcular_reporte_diario",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Calcular y enviar reporte diario",
+            "description": "Total ventas/gastos y margen neta"
+          }
+        }
+      }
+    ]
+  }
+}
