@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Store } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Store, LogOut } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -12,6 +13,7 @@ const navItems = [
 export default function Layout() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const { logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -47,8 +49,14 @@ export default function Layout() {
             );
           })}
         </nav>
-        <div className="px-6 py-4 border-t border-slate-800 text-xs text-slate-500">
-          © 2026 NuvexPos
+        <div className="px-3 py-3 border-t border-slate-800">
+          <button
+            onClick={() => logout()}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+          >
+            <LogOut className="w-4 h-4" style={{ width: 16, height: 16 }} />
+            Cerrar sesión
+          </button>
         </div>
       </aside>
 
@@ -86,6 +94,13 @@ export default function Layout() {
                 </Link>
               );
             })}
+            <button
+              onClick={() => logout()}
+              className="flex items-center gap-3 w-full px-5 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800"
+            >
+              <LogOut className="w-5 h-5" />
+              Cerrar sesión
+            </button>
           </div>
         </div>
       )}
