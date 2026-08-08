@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Send, CheckCircle2, X, AlertCircle, Wallet } from 'lucide-react';
+import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Send, CheckCircle2, X, AlertCircle, Wallet, HandCoins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency } from '@/lib/format';
@@ -9,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
+import ClienteFiadoSelector from '@/components/ventas/ClienteFiadoSelector';
 
 const ICONOS_PAGO = { Efectivo: Banknote, Tarjeta: CreditCard, Transferencia: Send };
 
@@ -20,6 +21,7 @@ export default function PuntoVenta() {
   const [busqueda, setBusqueda] = useState('');
   const [carrito, setCarrito] = useState([]);
   const [metodoPago, setMetodoPago] = useState('Efectivo');
+  const [clienteFiado, setClienteFiado] = useState(null);
   const [procesando, setProcesando] = useState(false);
   const [ventaExitosa, setVentaExitosa] = useState(null);
 
@@ -103,14 +105,28 @@ export default function PuntoVenta() {
 
   const total = carrito.reduce((sum, item) => sum + item.cantidad * item.precio, 0);
 
+  const opcionesPago = (metodos.length
+    ? metodos.map((m) => ({ nombre: m.nombre, Icon: ICONOS_PAGO[m.nombre] || Wallet }))
+    : Object.keys(ICONOS_PAGO).map((nombre) => ({ nombre, Icon: ICONOS_PAGO[nombre] }))
+  ).concat([{ nombre: 'Fiado', Icon: HandCoins }]);
+
+  const esFiado = metodoPago === 'Fiado';
+  const creditoDisponible = (Number(clienteFiado?.limite_credito) || 0) - (Number(clienteFiado?.saldo_pendiente) || 0);
+  const fiadoValido = !esFiado || (!!clienteFiado && total <= creditoDisponible);
+
   const finalizarVenta = async () => {
     if (carrito.length === 0) return;
+    if (esFiado && (!clienteFiado || total > creditoDisponible)) {
+      toast({ title: 'No se puede completar la venta a crédito', description: !clienteFiado ? 'Seleccione un cliente' : 'El crédito disponible es insuficiente', variant: 'destructive' });
+      return;
+    }
     setProcesando(true);
     try {
-      const res = await base44.functions.invoke('finalizar_venta', { carrito, metodo_pago: metodoPago });
+      const res = await base44.functions.invoke('finalizar_venta', { carrito, metodo_pago: metodoPago, cliente_id: esFiado ? clienteFiado.id : null });
       setVentaExitosa({ id: res.data.venta_id, total: res.data.monto_total, alertas: res.data.alertas || [] });
       setCarrito([]);
       setBusqueda('');
+      setClienteFiado(null);
       await load();
     } catch (err) {
       toast({ title: 'Error al procesar la venta', description: err.message, variant: 'destructive' });
@@ -248,15 +264,12 @@ export default function PuntoVenta() {
               <div>
                 <p className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Método de pago</p>
                 <div className="grid grid-cols-3 gap-2">
-                  {(metodos.length
-                    ? metodos.map((m) => ({ nombre: m.nombre, Icon: ICONOS_PAGO[m.nombre] || Wallet }))
-                    : Object.keys(ICONOS_PAGO).map((nombre) => ({ nombre, Icon: ICONOS_PAGO[nombre] }))
-                  ).map(({ nombre, Icon }) => {
+                  {opcionesPago.map(({ nombre, Icon }) => {
                     const active = metodoPago === nombre;
                     return (
                       <button
                         key={nombre}
-                        onClick={() => setMetodoPago(nombre)}
+                        onClick={() => { setMetodoPago(nombre); if (nombre !== 'Fiado') setClienteFiado(null); }}
                         className={cn(
                           'flex flex-col items-center gap-1 py-2.5 rounded-xl border text-xs font-medium transition-colors',
                           active ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'
@@ -268,6 +281,12 @@ export default function PuntoVenta() {
                     );
                   })}
                 </div>
+
+                {esFiado && (
+                  <div className="pt-1">
+                    <ClienteFiadoSelector value={clienteFiado} onChange={setClienteFiado} total={total} />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-between pt-1">
@@ -277,7 +296,7 @@ export default function PuntoVenta() {
 
               <Button
                 onClick={finalizarVenta}
-                disabled={carrito.length === 0 || procesando}
+                disabled={carrito.length === 0 || procesando || !fiadoValido}
                 className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-base font-semibold"
               >
                 {procesando ? (

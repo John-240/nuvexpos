@@ -16,9 +16,28 @@
       "enum": [
         "Efectivo",
         "Tarjeta",
-        "Transferencia"
+        "Transferencia",
+        "Fiado"
       ],
       "title": "M\u00e9todo de pago"
+    },
+    "cliente_id": {
+      "type": "string",
+      "title": "Cliente"
+    },
+    "estado": {
+      "type": "string",
+      "enum": [
+        "Pagado",
+        "Pendiente",
+        "Anulada"
+      ],
+      "default": "Pagado",
+      "title": "Estado"
+    },
+    "motivo_anulacion": {
+      "type": "string",
+      "title": "Motivo de anulaci\u00f3n"
     }
   },
   "required": [

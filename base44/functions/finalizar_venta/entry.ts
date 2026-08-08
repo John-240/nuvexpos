@@ -10,14 +10,25 @@ export default async function(req) {
     }
 
     const body = await req.json();
-    const { carrito, metodo_pago } = body;
+    const { carrito, metodo_pago, cliente_id } = body;
 
     if (!Array.isArray(carrito) || carrito.length === 0) {
       return Response.json({ error: 'El carrito está vacío' }, { status: 400 });
     }
-    const metodosValidos = ['Efectivo', 'Tarjeta', 'Transferencia'];
+    const metodosValidos = ['Efectivo', 'Tarjeta', 'Transferencia', 'Fiado'];
     if (!metodosValidos.includes(metodo_pago)) {
       return Response.json({ error: 'Método de pago inválido' }, { status: 400 });
+    }
+
+    let cliente = null;
+    if (metodo_pago === 'Fiado') {
+      if (!cliente_id) {
+        return Response.json({ error: 'Debe seleccionar un cliente para ventas a crédito' }, { status: 400 });
+      }
+      cliente = await base44.asServiceRole.entities.Clientes.get(cliente_id);
+      if (!cliente) {
+        return Response.json({ error: 'Cliente no encontrado' }, { status: 400 });
+      }
     }
 
     // Validar stock disponible y calcular total
@@ -41,11 +52,22 @@ export default async function(req) {
       lineas.push({ producto, cantidad, subtotal, nuevoStock });
     }
 
+    const estado = metodo_pago === 'Fiado' ? 'Pendiente' : 'Pagado';
+    if (metodo_pago === 'Fiado') {
+      const saldo = Number(cliente.saldo_pendiente) || 0;
+      const limite = Number(cliente.limite_credito) || 0;
+      if (saldo + monto_total > limite) {
+        return Response.json({ error: 'El cliente no tiene crédito suficiente' }, { status: 400 });
+      }
+    }
+
     // 1. Crear la venta
     const venta = await base44.entities.Ventas.create({
       fecha_hora: new Date().toISOString(),
       monto_total: parseFloat(monto_total.toFixed(2)),
-      metodo_pago
+      metodo_pago,
+      estado,
+      cliente_id: metodo_pago === 'Fiado' ? cliente.id : null
     });
 
     // 2. Crear detalles y descontar stock
@@ -74,6 +96,14 @@ export default async function(req) {
         });
         alertasGeneradas.push(mensaje);
       }
+    }
+
+    // 4. Actualizar saldo del cliente (ventas a crédito)
+    if (metodo_pago === 'Fiado') {
+      const saldoActual = Number(cliente.saldo_pendiente) || 0;
+      await base44.asServiceRole.entities.Clientes.update(cliente.id, {
+        saldo_pendiente: parseFloat((saldoActual + monto_total).toFixed(2))
+      });
     }
 
     return Response.json({ success: true, venta_id: venta.id, monto_total, alertas: alertasGeneradas });

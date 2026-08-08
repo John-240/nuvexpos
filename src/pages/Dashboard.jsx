@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Package, DollarSign, TrendingUp, AlertTriangle, ShoppingCart, Plus, ArrowRight, Bell, Wallet, X, CheckCircle2, PackageCheck } from 'lucide-react';
+import { Package, DollarSign, TrendingUp, AlertTriangle, ShoppingCart, Plus, ArrowRight, Bell, Wallet, X, CheckCircle2, PackageCheck, Users } from 'lucide-react';
 import { formatCurrency, formatDate, isToday } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import RestockDialog from '@/components/dashboard/RestockDialog';
@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [alertas, setAlertas] = useState([]);
   const [gastos, setGastos] = useState([]);
   const [detalles, setDetalles] = useState([]);
+  const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [restock, setRestock] = useState(null);
 
@@ -23,23 +24,26 @@ export default function Dashboard() {
     const unsubA = base44.entities.Alertas.subscribe(() => loadData());
     const unsubG = base44.entities.Gastos.subscribe(() => loadData());
     const unsubD = base44.entities.Detalles_Venta.subscribe(() => loadData());
-    return () => { unsubP(); unsubV(); unsubA(); unsubG(); unsubD(); };
+    const unsubC = base44.entities.Clientes.subscribe(() => loadData());
+    return () => { unsubP(); unsubV(); unsubA(); unsubG(); unsubD(); unsubC(); };
   }, []);
 
   const loadData = async () => {
     try {
-      const [p, v, a, g, d] = await Promise.all([
+      const [p, v, a, g, d, c] = await Promise.all([
         base44.entities.Productos.list(),
         base44.entities.Ventas.list('-fecha_hora', 200),
         base44.entities.Alertas.filter({ leida: false }, '-fecha', 30),
         base44.entities.Gastos.list('-fecha', 200),
-        base44.entities.Detalles_Venta.list('-created_date', 500)
+        base44.entities.Detalles_Venta.list('-created_date', 500),
+        base44.entities.Clientes.list()
       ]);
       setProductos(p);
       setVentas(v);
       setAlertas(a.filter((x) => !x.descartada));
       setGastos(g);
       setDetalles(d);
+      setClientes(c);
     } finally {
       setLoading(false);
     }
@@ -49,6 +53,8 @@ export default function Dashboard() {
   const ventasHoy = ventas.filter((v) => isToday(v.fecha_hora));
   const totalVentasHoy = ventasHoy.reduce((s, v) => s + (v.monto_total || 0), 0);
   const stockBajo = productos.filter((p) => (p.stock_actual || 0) <= (p.stock_minimo || 0));
+  const totalPendienteCobrar = clientes.reduce((s, c) => s + (Number(c.saldo_pendiente) || 0), 0);
+  const clientesConDeuda = clientes.filter((c) => (Number(c.saldo_pendiente) || 0) > 0).length;
 
   // Ganancia Real del mes = Total Ventas - Costo de productos vendidos - Gastos
   const ahora = new Date();
@@ -78,7 +84,9 @@ export default function Dashboard() {
     { label: 'Total de productos', value: productos.length, icon: Package, color: 'bg-blue-500' },
     { label: 'Valor del inventario', value: formatCurrency(valorInventario), icon: DollarSign, color: 'bg-emerald-500' },
     { label: 'Ventas de hoy', value: formatCurrency(totalVentasHoy), sub: `${ventasHoy.length} transacciones`, icon: TrendingUp, color: 'bg-violet-500' },
-    { label: 'Necesitan reabastecimiento', value: stockBajo.length, icon: PackageCheck, color: 'bg-rose-500' }
+    { label: 'Necesitan reabastecimiento', value: stockBajo.length, icon: PackageCheck, color: 'bg-rose-500' },
+    { label: 'Total pendiente de cobrar', value: formatCurrency(totalPendienteCobrar), icon: Wallet, color: 'bg-amber-500' },
+    { label: 'Clientes con deuda', value: clientesConDeuda, icon: Users, color: 'bg-orange-500' }
   ];
 
   return (

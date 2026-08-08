@@ -1,0 +1,45 @@
+{
+  "name": "Clientes",
+  "type": "object",
+  "properties": {
+    "nombre": {
+      "type": "string",
+      "title": "Nombre"
+    },
+    "telefono": {
+      "type": "string",
+      "title": "Tel\u00e9fono"
+    },
+    "limite_credito": {
+      "type": "number",
+      "title": "L\u00edmite de cr\u00e9dito",
+      "default": 0
+    },
+    "saldo_pendiente": {
+      "type": "number",
+      "title": "Saldo pendiente",
+      "default": 0
+    }
+  },
+  "required": [
+    "nombre"
+  ],
+  "rls": {
+    "read": null,
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -21,6 +21,7 @@ import RoleRoute from '@/components/RoleRoute';
 import HistorialVentas from '@/pages/HistorialVentas';
 import Gastos from '@/pages/Gastos';
 import Configuracion from '@/pages/Configuracion';
+import CobrarDeuda from '@/pages/CobrarDeuda';
 import { ThemeProvider } from 'next-themes';
 
 const AuthenticatedApp = () => {
@@ -62,6 +63,7 @@ const AuthenticatedApp = () => {
             <Route path="/productos" element={<RegistroProductos />} />
             <Route path="/historial" element={<HistorialVentas />} />
             <Route path="/gastos" element={<Gastos />} />
+            <Route path="/cobrar" element={<CobrarDeuda />} />
             <Route path="/configuracion" element={<Configuracion />} />
           </Route>
         </Route>
