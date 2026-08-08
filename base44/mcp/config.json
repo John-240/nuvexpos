@@ -1,0 +1,42 @@
+{
+  "auth": "oauth",
+  "tools": {
+    "functions": [
+      {
+        "name": "finalizar_venta",
+        "title": "Finalizar venta",
+        "description": "Procesa una venta del punto de venta: valida el stock disponible, registra la venta y sus detalles, descuenta el inventario y genera alertas de stock bajo cuando corresponde. Úsala cuando el usuario quiera registrar una nueva venta con un carrito de productos y un método de pago.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "carrito": {
+              "type": "array",
+              "description": "Lista de productos a vender. Cada item debe incluir producto_id (id del producto) y cantidad (entero mayor a 0).",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "producto_id": { "type": "string", "description": "ID del producto a vender" },
+                  "cantidad": { "type": "integer", "description": "Cantidad a vender, entero mayor a 0" }
+                },
+                "required": ["producto_id", "cantidad"]
+              }
+            },
+            "metodo_pago": {
+              "type": "string",
+              "enum": ["Efectivo", "Tarjeta", "Transferencia"],
+              "description": "Método de pago de la venta. Por defecto Efectivo.",
+              "default": "Efectivo"
+            }
+          },
+          "required": ["carrito", "metodo_pago"]
+        },
+        "handler": "finalizar_venta",
+        "annotations": {
+          "read_only_hint": false,
+          "destructive_hint": false,
+          "idempotent_hint": false
+        }
+      }
+    ]
+  }
+}
