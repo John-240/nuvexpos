@@ -27,6 +27,11 @@
       "default": false,
       "title": "Le\u00edda"
     },
+    "descartada": {
+      "type": "boolean",
+      "default": false,
+      "title": "Descartada"
+    },
     "fecha": {
       "type": "string",
       "format": "date-time",

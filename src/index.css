@@ -90,3 +90,27 @@
     @apply bg-background text-foreground font-body;
   }
 }
+
+/* ===== Modo oscuro: adaptar clases slate usadas en las páginas a los tokens ===== */
+.dark .bg-white { background-color: hsl(var(--card)); }
+.dark .bg-slate-50 { background-color: hsl(var(--background)); }
+.dark .bg-slate-100 { background-color: hsl(var(--muted)); }
+.dark .text-slate-900 { color: hsl(var(--foreground)); }
+.dark .text-slate-800 { color: hsl(var(--foreground)); }
+.dark .text-slate-700 { color: hsl(var(--card-foreground)); }
+.dark .text-slate-600 { color: hsl(var(--muted-foreground)); }
+.dark .text-slate-500 { color: hsl(var(--muted-foreground)); }
+.dark .text-slate-400 { color: hsl(var(--muted-foreground)); }
+.dark .border-slate-200 { border-color: hsl(var(--border)); }
+.dark .border-slate-100 { border-color: hsl(var(--border)); }
+.dark .divide-slate-100 > * + * { border-color: hsl(var(--border)); }
+.dark .bg-emerald-50 { background-color: hsl(152 60% 40% / 0.15); }
+.dark .bg-red-50 { background-color: hsl(0 70% 45% / 0.15); }
+.dark .bg-amber-50 { background-color: hsl(38 90% 50% / 0.15); }
+.dark .bg-amber-100 { background-color: hsl(38 90% 50% / 0.2); }
+.dark .bg-violet-50 { background-color: hsl(263 70% 50% / 0.15); }
+.dark .bg-blue-50 { background-color: hsl(217 70% 50% / 0.15); }
+.dark .bg-rose-50 { background-color: hsl(350 70% 50% / 0.15); }
+.dark .hover\:bg-slate-50:hover { background-color: hsl(var(--muted)); }
+.dark .hover\:bg-slate-100:hover { background-color: hsl(var(--muted)); }
+.dark .hover\:bg-slate-800:hover { background-color: hsl(var(--muted) / 0.3); }

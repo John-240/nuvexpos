@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ProductForm from '@/components/productos/ProductForm';
 import { formatCurrency } from '@/lib/format';
+import { ensureStockAlert } from '@/lib/stockAlerts';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from '@/components/ui/dialog';
@@ -51,8 +52,10 @@ export default function RegistroProductos() {
   const handleSubmit = async (data) => {
     if (editando) {
       await base44.entities.Productos.update(editando.id, data);
+      await ensureStockAlert({ ...editando, ...data });
     } else {
       await base44.entities.Productos.create(data);
+      await ensureStockAlert(data);
     }
     setShowForm(false);
     setEditando(null);

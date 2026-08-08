@@ -1,0 +1,39 @@
+{
+  "name": "Gastos",
+  "type": "object",
+  "properties": {
+    "fecha": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha"
+    },
+    "concepto": {
+      "type": "string",
+      "title": "Concepto"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "Compra de Mercanc\u00eda",
+        "Servicios",
+        "Renta",
+        "Servicios P\u00fablicos",
+        "Salarios",
+        "Otros"
+      ],
+      "title": "Categor\u00eda"
+    },
+    "monto": {
+      "type": "number",
+      "title": "Monto"
+    },
+    "proveedor": {
+      "type": "string",
+      "title": "Proveedor"
+    }
+  },
+  "required": [
+    "concepto",
+    "monto"
+  ]
+}

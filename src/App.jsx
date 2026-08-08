@@ -16,6 +16,10 @@ import Layout from '@/components/Layout';
 import Dashboard from '@/pages/Dashboard';
 import RegistroProductos from '@/pages/RegistroProductos';
 import PuntoVenta from '@/pages/PuntoVenta';
+import RoleRoute from '@/components/RoleRoute';
+import HistorialVentas from '@/pages/HistorialVentas';
+import Gastos from '@/pages/Gastos';
+import { ThemeProvider } from 'next-themes';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -49,9 +53,13 @@ const AuthenticatedApp = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/productos" element={<RegistroProductos />} />
           <Route path="/venta" element={<PuntoVenta />} />
+          <Route element={<RoleRoute />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/productos" element={<RegistroProductos />} />
+            <Route path="/historial" element={<HistorialVentas />} />
+            <Route path="/gastos" element={<Gastos />} />
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
@@ -63,6 +71,7 @@ const AuthenticatedApp = () => {
 function App() {
 
   return (
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
@@ -72,6 +81,7 @@ function App() {
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
+    </ThemeProvider>
   )
 }
 
