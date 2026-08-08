@@ -1,0 +1,37 @@
+{
+  "name": "Productos",
+  "type": "object",
+  "properties": {
+    "codigo_barras": {
+      "type": "string",
+      "title": "C\u00f3digo de barras"
+    },
+    "nombre_producto": {
+      "type": "string",
+      "title": "Nombre del producto"
+    },
+    "categoria": {
+      "type": "string",
+      "title": "Categor\u00eda"
+    },
+    "precio_costo": {
+      "type": "number",
+      "title": "Precio de costo"
+    },
+    "precio_venta": {
+      "type": "number",
+      "title": "Precio de venta"
+    },
+    "stock_actual": {
+      "type": "integer",
+      "title": "Stock actual"
+    },
+    "stock_minimo": {
+      "type": "integer",
+      "title": "Stock m\u00ednimo"
+    }
+  },
+  "required": [
+    "nombre_producto"
+  ]
+}

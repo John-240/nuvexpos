@@ -1,0 +1,28 @@
+{
+  "name": "Detalles_Venta",
+  "type": "object",
+  "properties": {
+    "venta_id": {
+      "type": "string",
+      "title": "Venta"
+    },
+    "producto_id": {
+      "type": "string",
+      "title": "Producto"
+    },
+    "cantidad_vendida": {
+      "type": "integer",
+      "title": "Cantidad vendida"
+    },
+    "subtotal": {
+      "type": "number",
+      "title": "Subtotal"
+    }
+  },
+  "required": [
+    "venta_id",
+    "producto_id",
+    "cantidad_vendida",
+    "subtotal"
+  ]
+}

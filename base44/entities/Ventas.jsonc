@@ -1,0 +1,28 @@
+{
+  "name": "Ventas",
+  "type": "object",
+  "properties": {
+    "fecha_hora": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha y hora"
+    },
+    "monto_total": {
+      "type": "number",
+      "title": "Monto total"
+    },
+    "metodo_pago": {
+      "type": "string",
+      "enum": [
+        "Efectivo",
+        "Tarjeta",
+        "Transferencia"
+      ],
+      "title": "M\u00e9todo de pago"
+    }
+  },
+  "required": [
+    "monto_total",
+    "metodo_pago"
+  ]
+}

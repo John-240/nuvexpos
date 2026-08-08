@@ -1,0 +1,39 @@
+{
+  "name": "Alertas",
+  "type": "object",
+  "properties": {
+    "mensaje": {
+      "type": "string",
+      "title": "Mensaje"
+    },
+    "producto_id": {
+      "type": "string",
+      "title": "Producto"
+    },
+    "nombre_producto": {
+      "type": "string",
+      "title": "Nombre del producto"
+    },
+    "stock_actual": {
+      "type": "integer",
+      "title": "Stock actual"
+    },
+    "stock_minimo": {
+      "type": "integer",
+      "title": "Stock m\u00ednimo"
+    },
+    "leida": {
+      "type": "boolean",
+      "default": false,
+      "title": "Le\u00edda"
+    },
+    "fecha": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha"
+    }
+  },
+  "required": [
+    "mensaje"
+  ]
+}
