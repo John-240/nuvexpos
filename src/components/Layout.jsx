@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Store, LogOut, History, Wallet, Settings, Users, Coins, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Store, LogOut, History, Wallet, Settings, Users, Coins, ClipboardList, ArrowLeftRight, BarChart3, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { cn } from '@/lib/utils';
+import { base44 } from '@/api/base44Client';
 import ThemeToggle from '@/components/ThemeToggle';
+
+const ROLE_LABEL = { admin: 'Administrador', superadmin: 'Superadmin', user: 'Cajero', cajero: 'Cajero' };
 
 const allNavItems = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard, admin: true },
@@ -11,18 +14,33 @@ const allNavItems = [
   { label: 'Caja', path: '/caja', icon: Coins, admin: false },
   { label: 'Punto de Venta', path: '/venta', icon: ShoppingCart, admin: false },
   { label: 'Historial de Ventas', path: '/historial', icon: History, admin: true },
+  { label: 'Movimientos de Caja', path: '/movimientos-caja', icon: ArrowLeftRight, admin: false },
   { label: 'Historial de Cajas', path: '/historial-cajas', icon: ClipboardList, admin: false },
   { label: 'Clientes', path: '/cobrar', icon: Users, admin: true },
   { label: 'Gastos', path: '/gastos', icon: Wallet, admin: true },
+  { label: 'Reportes', path: '/reportes', icon: BarChart3, admin: true },
+  { label: 'Auditoría', path: '/auditoria', icon: ShieldCheck, admin: true },
   { label: 'Configuración', path: '/configuracion', icon: Settings, admin: true },
 ];
 
 export default function Layout() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [cajaAbierta, setCajaAbierta] = useState(null);
   const { logout, user } = useAuth();
   const esAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const navItems = allNavItems.filter((i) => !i.admin || esAdmin);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const cajas = await base44.entities.Cajas.filter({ usuario_apertura: user.id, estado: 'ABIERTA' });
+        if (active) setCajaAbierta(cajas.length > 0);
+      } catch { if (active) setCajaAbierta(false); }
+    })();
+    return () => { active = false; };
+  }, [user.id]);
 
   const NavList = ({ onNavigate }) => (
     <>
@@ -65,12 +83,21 @@ export default function Layout() {
         <nav className="flex-1 px-3 py-4 space-y-1">
           <NavList />
         </nav>
-        <div className="px-3 py-3 border-t border-slate-800 flex items-center gap-1">
-          <div className="flex-1 px-2 text-xs text-slate-400 truncate">{user?.email}</div>
-          <ThemeToggle />
-          <button onClick={() => logout()} title="Cerrar sesión" className="p-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
-            <LogOut className="w-4 h-4" />
-          </button>
+        <div className="px-3 py-3 border-t border-slate-800 space-y-2">
+          <div className="flex items-center justify-between px-2">
+            <span className="text-xs text-slate-400">{ROLE_LABEL[user?.role] || user?.role || 'Usuario'}</span>
+            <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${cajaAbierta ? 'text-emerald-400' : 'text-slate-500'}`}>
+              <span className={`w-2 h-2 rounded-full ${cajaAbierta ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
+              {cajaAbierta ? 'Caja abierta' : 'Caja cerrada'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="flex-1 px-2 text-xs text-slate-400 truncate">{user?.email}</div>
+            <ThemeToggle />
+            <button onClick={() => logout()} title="Cerrar sesión" className="p-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </aside>
 
