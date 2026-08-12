@@ -71,7 +71,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background flex">
       {/* Sidebar desktop */}
-      <aside className="hidden md:flex w-64 flex-col bg-slate-900 text-slate-100 fixed inset-y-0 left-0 h-screen">
+      <aside className="hidden md:flex w-64 flex-col bg-slate-900 text-slate-100 fixed inset-y-0 left-0 h-screen overflow-hidden">
         <div className="px-6 py-6 border-b border-slate-800 shrink-0">
           <Link to={esAdmin ? '/' : '/caja'} className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
