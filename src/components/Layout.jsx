@@ -42,7 +42,7 @@ export default function Layout() {
     check();
     const unsub = base44.entities.Cajas.subscribe(() => check());
     return () => { active = false; unsub && unsub(); };
-  }, [user.id]);
+  }, [user.id, location.pathname]);
 
   const NavList = ({ onNavigate }) => (
     <>
