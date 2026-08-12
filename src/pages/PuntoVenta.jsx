@@ -257,35 +257,35 @@ export default function PuntoVenta() {
                   <p className="text-xs text-slate-400 mt-1">Busca y agrega productos</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {carrito.map((item) => (
-                    <div key={item.producto_id} className="p-3 rounded-xl border border-slate-200 bg-slate-50/50">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-medium text-slate-800 text-sm leading-tight">{item.nombre}</p>
-                        <button onClick={() => quitar(item.producto_id)} className="text-slate-400 hover:text-red-500 shrink-0">
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-0.5">{formatCurrency(item.precio)} c/u</p>
-                      <div className="flex items-center justify-between mt-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <button onClick={() => cambiarCantidad(item.producto_id, -1)} className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100">
-                            <Minus className="w-3.5 h-3.5" />
-                          </button>
-                          <input
-                            value={item.cantidad}
-                            onChange={(e) => setCantidad(item.producto_id, e.target.value)}
-                            className="w-12 h-7 text-center text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                          />
-                          <button onClick={() => cambiarCantidad(item.producto_id, 1)} className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100">
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                        <p className="font-semibold text-slate-900 text-sm">{formatCurrency(item.cantidad * item.precio)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <div className="divide-y divide-slate-100">
+                   {carrito.map((item) => (
+                     <div key={item.producto_id} className="py-3 first:pt-0 last:pb-0">
+                       <div className="flex items-center gap-3">
+                         <div className="flex-1 min-w-0">
+                           <p className="font-medium text-slate-900 text-sm leading-tight truncate">{item.nombre}</p>
+                           <p className="text-xs text-slate-400 mt-0.5">{formatCurrency(item.precio)} c/u</p>
+                         </div>
+                         <div className="flex items-center gap-1 shrink-0">
+                           <button onClick={() => cambiarCantidad(item.producto_id, -1)} className="w-6 h-6 rounded-md text-slate-500 hover:bg-slate-100 flex items-center justify-center">
+                             <Minus className="w-3.5 h-3.5" />
+                           </button>
+                           <input
+                             value={item.cantidad}
+                             onChange={(e) => setCantidad(item.producto_id, e.target.value)}
+                             className="w-9 h-6 text-center text-sm font-medium text-slate-700 bg-transparent focus:outline-none focus:ring-1 focus:ring-emerald-500 rounded-md"
+                           />
+                           <button onClick={() => cambiarCantidad(item.producto_id, 1)} className="w-6 h-6 rounded-md text-slate-500 hover:bg-slate-100 flex items-center justify-center">
+                             <Plus className="w-3.5 h-3.5" />
+                           </button>
+                         </div>
+                         <p className="font-semibold text-slate-900 text-sm w-20 text-right shrink-0">{formatCurrency(item.cantidad * item.precio)}</p>
+                         <button onClick={() => quitar(item.producto_id)} className="w-6 h-6 rounded-md bg-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center shrink-0">
+                           <X className="w-3.5 h-3.5" />
+                         </button>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
               )}
             </div>
 
