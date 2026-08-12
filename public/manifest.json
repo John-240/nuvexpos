@@ -1,0 +1,18 @@
+{
+  "name": "NUVEXA",
+  "short_name": "NUVEXA",
+  "description": "Punto de venta y gestión de inventarios para pulperías y pequeños comercios.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0f766e",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "https://base44.com/logo_v2.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
