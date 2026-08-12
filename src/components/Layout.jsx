@@ -71,8 +71,8 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background flex">
       {/* Sidebar desktop */}
-      <aside className="hidden md:flex w-64 flex-col bg-slate-900 text-slate-100 fixed inset-y-0 left-0">
-        <div className="px-6 py-6 border-b border-slate-800">
+      <aside className="hidden md:flex w-64 flex-col bg-slate-900 text-slate-100 fixed inset-y-0 left-0 h-screen">
+        <div className="px-6 py-6 border-b border-slate-800 shrink-0">
           <Link to={esAdmin ? '/' : '/caja'} className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
               <Store className="w-5 h-5 text-white" />
@@ -83,10 +83,10 @@ export default function Layout() {
             </div>
           </Link>
         </div>
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 min-h-0 px-3 py-4 space-y-1 overflow-y-auto">
           <NavList />
         </nav>
-        <div className="px-3 py-3 border-t border-slate-800 space-y-2">
+        <div className="px-3 py-3 border-t border-slate-800 space-y-2 shrink-0">
           <div className="flex items-center justify-between px-2">
             <span className="text-xs text-slate-400">{ROLE_LABEL[user?.role] || user?.role || 'Usuario'}</span>
             {cajaAbierta !== null && (
