@@ -272,6 +272,7 @@ export default function PuntoVenta() {
                            <input
                              value={item.cantidad}
                              onChange={(e) => setCantidad(item.producto_id, e.target.value)}
+                             onFocus={(e) => e.target.select()}
                              className="w-9 h-6 text-center text-sm font-medium text-slate-700 bg-transparent focus:outline-none focus:ring-1 focus:ring-emerald-500 rounded-md"
                            />
                            <button onClick={() => cambiarCantidad(item.producto_id, 1)} className="w-6 h-6 rounded-md text-slate-500 hover:bg-slate-100 flex items-center justify-center">
