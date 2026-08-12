@@ -16,7 +16,9 @@
       "enum": [
         "Efectivo",
         "Tarjeta",
+        "SINPE",
         "Transferencia",
+        "Otro",
         "Fiado"
       ],
       "title": "M\u00e9todo de pago"
@@ -25,12 +27,31 @@
       "type": "string",
       "title": "Cliente"
     },
+    "caja_id": {
+      "type": "string",
+      "title": "Caja"
+    },
+    "descuento": {
+      "type": "number",
+      "default": 0,
+      "title": "Descuento"
+    },
+    "recibido": {
+      "type": "number",
+      "title": "Dinero recibido (efectivo)"
+    },
+    "vuelto": {
+      "type": "number",
+      "default": 0,
+      "title": "Vuelto"
+    },
     "estado": {
       "type": "string",
       "enum": [
         "Pagado",
         "Pendiente",
-        "Anulada"
+        "Anulada",
+        "Devuelta"
       ],
       "default": "Pagado",
       "title": "Estado"
@@ -50,14 +71,32 @@
     },
     "read": null,
     "update": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
     }
   }
 }
