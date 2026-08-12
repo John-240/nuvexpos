@@ -7,7 +7,7 @@ import { formatCurrency } from '@/lib/format';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function IngresoRetiroDialog({ tipo, onClose, onDone }) {
-  const { toast } = useToast();
+  const { addToast } = useToast();
   const [monto, setMonto] = useState('');
   const [motivo, setMotivo] = useState('');
   const [observacion, setObservacion] = useState('');
@@ -16,15 +16,15 @@ export default function IngresoRetiroDialog({ tipo, onClose, onDone }) {
 
   const confirmar = async () => {
     const m = Number(monto);
-    if (isNaN(m) || m <= 0) { toast({ title: 'Monto inválido', variant: 'destructive' }); return; }
-    if (!motivo.trim()) { toast({ title: 'El motivo es obligatorio', variant: 'destructive' }); return; }
+    if (isNaN(m) || m <= 0) { addToast('Monto inválido', 'error'); return; }
+    if (!motivo.trim()) { addToast('El motivo es obligatorio', 'error'); return; }
     setGuardando(true);
     try {
       const res = await base44.functions.invoke('operacion_caja', { tipo, monto: m, motivo, observacion });
-      toast({ title: esRetiro ? 'Retiro registrado' : 'Ingreso registrado', description: `Efectivo disponible: ${formatCurrency(res.data.efectivo_disponible)}` });
+      addToast(`${esRetiro ? 'Retiro' : 'Ingreso'} registrado — Efectivo: ${formatCurrency(res.data.efectivo_disponible)}`, 'success');
       onDone();
     } catch (e) {
-      toast({ title: 'Error', description: e.response?.data?.error || e.message, variant: 'destructive' });
+      addToast(`Error: ${e.response?.data?.error || e.message}`, 'error');
     } finally { setGuardando(false); }
   };
 

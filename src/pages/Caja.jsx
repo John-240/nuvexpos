@@ -12,7 +12,7 @@ import CierreCajaDialog from '@/components/caja/CierreCajaDialog';
 
 export default function Caja() {
   const { user } = useAuth();
-  const { toast } = useToast();
+  const { addToast } = useToast();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [montoInicial, setMontoInicial] = useState('');
@@ -24,26 +24,26 @@ export default function Caja() {
       const res = await base44.functions.invoke('resumen_caja', {});
       setData(res.data);
     } catch (e) {
-      toast({ title: 'Error al cargar caja', description: e.response?.data?.error || e.message, variant: 'destructive' });
+      addToast(`Error al cargar caja: ${e.response?.data?.error || e.message}`, 'error');
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [addToast]);
 
   useEffect(() => { cargar(); }, [cargar]);
 
   const abrirCaja = async () => {
     const m = Number(montoInicial);
-    if (isNaN(m) || m < 0) { toast({ title: 'Monto inicial inválido', variant: 'destructive' }); return; }
+    if (isNaN(m) || m < 0) { addToast('Monto inicial inválido', 'error'); return; }
     setAbriendo(true);
     try {
       await base44.functions.invoke('abrir_caja', { monto_inicial: m });
-      toast({ title: 'Caja abierta', description: `Monto inicial: ${formatCurrency(m)}` });
+      addToast(`Caja abierta — Monto inicial: ${formatCurrency(m)}`, 'success');
       setMontoInicial('');
       setLoading(true);
       await cargar();
     } catch (e) {
-      toast({ title: 'Error al abrir caja', description: e.response?.data?.error || e.message, variant: 'destructive' });
+      addToast(`Error al abrir caja: ${e.response?.data?.error || e.message}`, 'error');
     } finally { setAbriendo(false); }
   };
 

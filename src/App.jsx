@@ -1,4 +1,4 @@
-import { ToastProvider } from "@/components/ui/use-toast"
+import { ToastProvider } from "@/context/ToastContext"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
