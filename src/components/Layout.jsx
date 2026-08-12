@@ -41,7 +41,8 @@ export default function Layout() {
     };
     check();
     const unsub = base44.entities.Cajas.subscribe(() => check());
-    return () => { active = false; unsub && unsub(); };
+    const interval = setInterval(check, 8000);
+    return () => { active = false; unsub && unsub(); clearInterval(interval); };
   }, [user.id, location.pathname]);
 
   const NavList = ({ onNavigate }) => (
@@ -88,10 +89,10 @@ export default function Layout() {
         <div className="px-3 py-3 border-t border-slate-800 space-y-2">
           <div className="flex items-center justify-between px-2">
             <span className="text-xs text-slate-400">{ROLE_LABEL[user?.role] || user?.role || 'Usuario'}</span>
-            {cajaAbierta && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                Caja abierta
+            {cajaAbierta !== null && (
+              <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${cajaAbierta ? 'text-emerald-400' : 'text-slate-500'}`}>
+                <span className={`w-2 h-2 rounded-full ${cajaAbierta ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
+                {cajaAbierta ? 'Caja abierta' : 'Caja cerrada'}
               </span>
             )}
           </div>
