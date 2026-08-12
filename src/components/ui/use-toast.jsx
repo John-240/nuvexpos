@@ -4,9 +4,10 @@ import { cn } from "@/lib/utils";
 
 const ToastContext = createContext(null);
 
-const TOAST_DURATION = 4000;
+const TOAST_DURATION = 3000;
+const DESTRUCTIVE_DURATION = 5000;
 const FADE_DURATION = 300;
-const TOAST_LIMIT = 5;
+const TOAST_LIMIT = 3;
 
 // Punto de montaje: el `toast` standalone delega aquí si el provider está activo.
 let _push = null;
@@ -30,7 +31,7 @@ export function ToastProvider({ children }) {
   const toast = useCallback(
     (props = {}) => {
       const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const duration = props.duration ?? TOAST_DURATION;
+      const duration = props.duration ?? (props.variant === "destructive" ? DESTRUCTIVE_DURATION : TOAST_DURATION);
       const t = {
         id,
         title: props.title,
