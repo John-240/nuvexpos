@@ -119,18 +119,28 @@ export default async function(req) {
     await base44.asServiceRole.entities.Cajas.update(caja.id, { total_ventas: 8700, total_sinpe: 2700 });
 
     // === PASO 5: INGRESO MANUAL ===
-    await base44.asServiceRole.entities.Movimientos_Caja.create({
+    const movIngreso = await base44.asServiceRole.entities.Movimientos_Caja.create({
       caja_id: caja.id, tipo: "INGRESO", usuario_id: usuarioId, nombre_usuario: usuarioNombre,
       fecha_hora: new Date().toISOString(), monto: 10000, motivo: "Cambio para caja", observaciones: testObs
+    });
+    await base44.asServiceRole.entities.Auditoria.create({
+      usuario_id: usuarioId, nombre_usuario: usuarioNombre, accion: "INGRESO",
+      fecha_hora: new Date().toISOString(), entidad: "Movimientos_Caja", registro_afectado: movIngreso.id,
+      informacion: `Ingreso manual de 10000. ${testObs}`
     });
     await base44.asServiceRole.entities.Cajas.update(caja.id, { ingresos_manuales: 10000 });
     results.steps.push({ paso: 5, nombre: "Ingreso Manual", monto: 10000, pass: true });
 
     // === PASO 6: RETIRO ===
     const efectivoDisp = 50000 + 2300 + 10000;
-    await base44.asServiceRole.entities.Movimientos_Caja.create({
+    const movRetiro = await base44.asServiceRole.entities.Movimientos_Caja.create({
       caja_id: caja.id, tipo: "RETIRO", usuario_id: usuarioId, nombre_usuario: usuarioNombre,
       fecha_hora: new Date().toISOString(), monto: 5000, motivo: "Pago a proveedor", observaciones: testObs
+    });
+    await base44.asServiceRole.entities.Auditoria.create({
+      usuario_id: usuarioId, nombre_usuario: usuarioNombre, accion: "RETIRO",
+      fecha_hora: new Date().toISOString(), entidad: "Movimientos_Caja", registro_afectado: movRetiro.id,
+      informacion: `Retiro de 5000. ${testObs}`
     });
     await base44.asServiceRole.entities.Cajas.update(caja.id, { retiros: 5000 });
     results.steps.push({ paso: 6, nombre: "Retiro", monto: 5000, efectivo_disp: efectivoDisp, pass: 5000 <= efectivoDisp });

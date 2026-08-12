@@ -7,7 +7,7 @@ export default async function(req) {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'No autorizado' }, { status: 401 });
     if (user.role !== 'admin' && user.role !== 'superadmin') {
-      return Response.json({ error: 'No tiene permisos para anular ventas' }, { status: 403 });
+      return Response.json({ error: 'No tiene permisos para anular ventas. Solo ADMINISTRADOR o SUPERADMINISTRADOR.' }, { status: 403 });
     }
 
     const body = await req.json();
@@ -86,7 +86,7 @@ export default async function(req) {
       }
     }
 
-    await registrarAuditoria(base44, user, 'ANULACION_VENTA', 'Ventas', venta.id,
+    await registrarAuditoria(base44, user, 'ANULACION', 'Ventas', venta.id,
       { motivo: motivo.trim(), monto: venta.monto_total, metodo_pago: venta.metodo_pago });
 
     return Response.json({ success: true });
