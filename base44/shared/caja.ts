@@ -36,9 +36,9 @@ export async function efectivoDisponible(base44, caja) {
   for (const m of movs) {
     const monto = Number(m.monto) || 0;
     if (m.tipo === 'APERTURA' || m.tipo === 'INGRESO') cashIn += monto;
-    else if (m.tipo === 'VENTA' && m.metodo_pago === 'Efectivo') cashIn += monto;
+    else if (m.tipo === 'VENTA' && m.metodo_pago === 'EFECTIVO') cashIn += monto;
     else if (m.tipo === 'RETIRO') cashOut += monto;
-    else if (m.tipo === 'DEVOLUCION' && m.metodo_pago === 'Efectivo') cashOut += monto;
+    else if (m.tipo === 'DEVOLUCION' && m.metodo_pago === 'EFECTIVO') cashOut += monto;
   }
   return parseFloat((cashIn - cashOut).toFixed(2));
 }
@@ -47,21 +47,21 @@ export async function efectivoDisponible(base44, caja) {
 export async function resumenCaja(base44, caja) {
   const movs = await base44.asServiceRole.entities.Movimientos_Caja.filter({ caja_id: caja.id });
   const ventas = await base44.asServiceRole.entities.Ventas.filter({ caja_id: caja.id });
-  const ventasValidas = (ventas || []).filter((v) => v.estado === 'Pagado');
+  const ventasValidas = (ventas || []).filter((v) => v.estado === 'COMPLETADA' || v.estado === 'Pagado');
   const porMetodo = (m) => sumar(ventasValidas.filter((v) => v.metodo_pago === m), 'monto_total');
 
-  const total_efectivo = porMetodo('Efectivo');
-  const total_tarjeta = porMetodo('Tarjeta');
+  const total_efectivo = porMetodo('EFECTIVO');
+  const total_tarjeta = porMetodo('TARJETA');
   const total_sinpe = porMetodo('SINPE');
-  const total_transferencia = porMetodo('Transferencia');
-  const otros_pagos = porMetodo('Otro');
+  const total_transferencia = porMetodo('TRANSFERENCIA');
+  const otros_pagos = porMetodo('OTRO');
   const ventas_credito = porMetodo('Fiado');
 
   const ingresos = sumar(movs.filter((m) => m.tipo === 'INGRESO'), 'monto');
   const retiros = sumar(movs.filter((m) => m.tipo === 'RETIRO'), 'monto');
   const devoluciones = sumar(movs.filter((m) => m.tipo === 'DEVOLUCION'), 'monto');
   const devoluciones_efectivo = sumar(
-    movs.filter((m) => m.tipo === 'DEVOLUCION' && m.metodo_pago === 'Efectivo'),
+    movs.filter((m) => m.tipo === 'DEVOLUCION' && m.metodo_pago === 'EFECTIVO'),
     'monto'
   );
 

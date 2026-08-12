@@ -7,11 +7,11 @@ import { formatCurrency } from '@/lib/format';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const METODOS = [
-  { key: 'Efectivo', color: '#10b981' },
-  { key: 'Tarjeta', color: '#6366f1' },
+  { key: 'EFECTIVO', color: '#10b981' },
+  { key: 'TARJETA', color: '#6366f1' },
   { key: 'SINPE', color: '#f59e0b' },
-  { key: 'Transferencia', color: '#06b6d4' },
-  { key: 'Otro', color: '#94a3b8' },
+  { key: 'TRANSFERENCIA', color: '#06b6d4' },
+  { key: 'OTRO', color: '#94a3b8' },
   { key: 'Fiado', color: '#ec4899' },
 ];
 
@@ -50,7 +50,7 @@ export default function Reportes() {
     } finally { setLoading(false); }
   };
 
-  const ventasValidas = useMemo(() => ventas.filter((v) => v.estado === 'Pagado'), [ventas]);
+  const ventasValidas = useMemo(() => ventas.filter((v) => v.estado === 'COMPLETADA' || v.estado === 'Pagado'), [ventas]);
 
   // === REPORTE DIARIO ===
   const dia = useMemo(() => {

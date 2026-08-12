@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/lib/AuthContext';
 import ClienteFiadoSelector from '@/components/ventas/ClienteFiadoSelector';
 
-const ICONOS_PAGO = { Efectivo: Banknote, Tarjeta: CreditCard, Transferencia: Send };
+const ICONOS_PAGO = { EFECTIVO: Banknote, TARJETA: CreditCard, TRANSFERENCIA: Send };
 
 export default function PuntoVenta() {
   const { toast } = useToast();
@@ -22,7 +22,7 @@ export default function PuntoVenta() {
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState('');
   const [carrito, setCarrito] = useState([]);
-  const [metodoPago, setMetodoPago] = useState('Efectivo');
+  const [metodoPago, setMetodoPago] = useState('EFECTIVO');
   const [clienteFiado, setClienteFiado] = useState(null);
   const [procesando, setProcesando] = useState(false);
   const [ventaExitosa, setVentaExitosa] = useState(null);
@@ -130,7 +130,7 @@ export default function PuntoVenta() {
       toast({ title: 'Caja cerrada', description: 'Debe abrir una caja antes de vender', variant: 'destructive' });
       return;
     }
-    const esEfectivo = metodoPago === 'Efectivo';
+    const esEfectivo = metodoPago === 'EFECTIVO';
     const recibidoNum = Number(recibido) || 0;
     if (esEfectivo && recibidoNum < total) {
       toast({ title: 'Efectivo insuficiente', description: 'El dinero recibido es menor al total', variant: 'destructive' });
@@ -317,7 +317,7 @@ export default function PuntoVenta() {
                     <ClienteFiadoSelector value={clienteFiado} onChange={setClienteFiado} total={total} />
                   </div>
                 )}
-                {metodoPago === 'Efectivo' && (
+                {metodoPago === 'EFECTIVO' && (
                   <div className="pt-1 space-y-1.5">
                     <div className="flex items-center justify-between">
                       <label className="text-xs text-slate-500 font-medium">Dinero recibido</label>
@@ -337,7 +337,7 @@ export default function PuntoVenta() {
 
               <Button
                 onClick={finalizarVenta}
-                disabled={carrito.length === 0 || procesando || !fiadoValido || !cajaAbierta || (metodoPago === 'Efectivo' && (Number(recibido) || 0) < total)}
+                disabled={carrito.length === 0 || procesando || !fiadoValido || !cajaAbierta || (metodoPago === 'EFECTIVO' && (Number(recibido) || 0) < total)}
                 className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-base font-semibold"
               >
                 {procesando ? (

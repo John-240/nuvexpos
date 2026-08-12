@@ -14,12 +14,16 @@
     "metodo_pago": {
       "type": "string",
       "enum": [
+        "EFECTIVO",
+        "TARJETA",
+        "SINPE",
+        "TRANSFERENCIA",
+        "OTRO",
+        "Fiado",
         "Efectivo",
         "Tarjeta",
-        "SINPE",
         "Transferencia",
-        "Otro",
-        "Fiado"
+        "Otro"
       ],
       "title": "M\u00e9todo de pago"
     },
@@ -30,6 +34,10 @@
     "caja_id": {
       "type": "string",
       "title": "Caja"
+    },
+    "usuario_id": {
+      "type": "string",
+      "title": "Usuario que realiz\u00f3 la venta"
     },
     "descuento": {
       "type": "number",
@@ -48,12 +56,15 @@
     "estado": {
       "type": "string",
       "enum": [
-        "Pagado",
+        "COMPLETADA",
+        "ANULADA",
+        "DEVUELTA",
         "Pendiente",
+        "Pagado",
         "Anulada",
         "Devuelta"
       ],
-      "default": "Pagado",
+      "default": "COMPLETADA",
       "title": "Estado"
     },
     "motivo_anulacion": {

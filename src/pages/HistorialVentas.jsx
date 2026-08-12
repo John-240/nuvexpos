@@ -9,7 +9,7 @@ import AnularVentaDialog from '@/components/caja/AnularVentaDialog';
 import { useAuth } from '@/lib/AuthContext';
 import { Ban } from 'lucide-react';
 
-const METODOS = ['Efectivo', 'Tarjeta', 'Transferencia'];
+const METODOS = ['EFECTIVO', 'TARJETA', 'SINPE', 'TRANSFERENCIA', 'OTRO'];
 
 export default function HistorialVentas() {
   const [ventas, setVentas] = useState([]);
@@ -153,7 +153,7 @@ export default function HistorialVentas() {
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setSeleccionada(v); }}>Ver detalle</Button>
-                        {esAdmin && v.estado !== 'Anulada' && v.estado !== 'Devuelta' && (
+                        {esAdmin && v.estado !== 'ANULADA' && v.estado !== 'DEVUELTA' && (
                           <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={(e) => { e.stopPropagation(); setAnular(v); }}><Ban className="w-3.5 h-3.5" /> Anular</Button>
                         )}
                       </div>

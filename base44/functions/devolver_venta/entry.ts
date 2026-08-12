@@ -7,11 +7,11 @@ export default async function(req) {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'No autorizado' }, { status: 401 });
     if (user.role !== 'admin' && user.role !== 'superadmin') {
-      return Response.json({ error: 'No tiene permisos para anular ventas' }, { status: 403 });
+      return Response.json({ error: 'No tiene permisos para devolver ventas' }, { status: 403 });
     }
 
     const body = await req.json();
-    const { venta_id, motivo } = body;
+    const { venta_id, motivo, items } = body;
     if (!venta_id) return Response.json({ error: 'Falta venta_id' }, { status: 400 });
     if (!motivo || !motivo.trim()) return Response.json({ error: 'El motivo es obligatorio' }, { status: 400 });
 
@@ -29,41 +29,61 @@ export default async function(req) {
       }
     }
 
-    // Revertir stock de los productos vendidos
     const detalles = await base44.asServiceRole.entities.Detalles_Venta.filter({ venta_id });
-    for (const d of detalles) {
-      const prod = await base44.asServiceRole.entities.Productos.get(d.producto_id);
-      if (prod) {
-        await base44.asServiceRole.entities.Productos.update(prod.id, {
-          stock_actual: (prod.stock_actual || 0) + (d.cantidad_vendida || 0)
-        });
-      }
-    }
 
-    // Revertir crédito si fue venta a fiado
+    // Devolución parcial (items = [{producto_id, cantidad}]) o total
+    let montoDevuelto = 0;
+    if (Array.isArray(items) && items.length > 0) {
+      const map = new Map(detalles.map((d) => [d.producto_id, d]));
+      for (const it of items) {
+        const d = map.get(it.producto_id);
+        if (!d) continue;
+        const cantidad = Math.min(parseInt(it.cantidad, 10) || 0, d.cantidad_vendida || 0);
+        if (cantidad <= 0) continue;
+        const prod = await base44.asServiceRole.entities.Productos.get(it.producto_id);
+        if (prod) {
+          await base44.asServiceRole.entities.Productos.update(prod.id, {
+            stock_actual: (prod.stock_actual || 0) + cantidad
+          });
+        }
+        const unit = d.cantidad_vendida ? d.subtotal / d.cantidad_vendida : (prod?.precio_venta || 0);
+        montoDevuelto += cantidad * unit;
+      }
+    } else {
+      for (const d of detalles) {
+        const prod = await base44.asServiceRole.entities.Productos.get(d.producto_id);
+        if (prod) {
+          await base44.asServiceRole.entities.Productos.update(prod.id, {
+            stock_actual: (prod.stock_actual || 0) + (d.cantidad_vendida || 0)
+          });
+        }
+      }
+      montoDevuelto = Number(venta.monto_total) || 0;
+    }
+    montoDevuelto = parseFloat(montoDevuelto.toFixed(2));
+
+    // Revertir crédito si fue fiado
     if (venta.metodo_pago === 'Fiado' && venta.cliente_id) {
       const cliente = await base44.asServiceRole.entities.Clientes.get(venta.cliente_id);
       if (cliente) {
         await base44.asServiceRole.entities.Clientes.update(cliente.id, {
-          saldo_pendiente: parseFloat(
-            ((Number(cliente.saldo_pendiente) || 0) - (Number(venta.monto_total) || 0)).toFixed(2)
-          )
+          saldo_pendiente: parseFloat(Math.max(0, ((Number(cliente.saldo_pendiente) || 0) - montoDevuelto)).toFixed(2))
         });
       }
     }
 
     await base44.asServiceRole.entities.Ventas.update(venta.id, {
-      estado: 'ANULADA',
+      estado: 'DEVUELTA',
       motivo_anulacion: motivo.trim()
     });
 
-    // Movimiento de devolución en efectivo (afecta el efectivo de la caja)
+    // Movimiento DEVOLUCION (afecta efectivo de caja si fue en efectivo)
     if (venta.caja_id && venta.metodo_pago === 'EFECTIVO') {
       await base44.asServiceRole.entities.Movimientos_Caja.create({
         caja_id: venta.caja_id, tipo: 'DEVOLUCION', usuario_id: user.id,
         nombre_usuario: user.full_name || user.email,
-        fecha_hora: new Date().toISOString(), monto: Number(venta.monto_total) || 0,
-        metodo_pago: 'EFECTIVO', motivo: `Anulación venta ${venta.id}`, referencia: venta.id
+        fecha_hora: new Date().toISOString(), monto: montoDevuelto,
+        metodo_pago: 'EFECTIVO', motivo: `Devolución venta ${venta.id}`, referencia: venta.id
       });
     }
 
@@ -86,10 +106,10 @@ export default async function(req) {
       }
     }
 
-    await registrarAuditoria(base44, user, 'ANULACION_VENTA', 'Ventas', venta.id,
-      { motivo: motivo.trim(), monto: venta.monto_total, metodo_pago: venta.metodo_pago });
+    await registrarAuditoria(base44, user, 'DEVOLUCION_VENTA', 'Ventas', venta.id,
+      { motivo: motivo.trim(), monto_devuelto: montoDevuelto, metodo_pago: venta.metodo_pago });
 
-    return Response.json({ success: true });
+    return Response.json({ success: true, monto_devuelto: montoDevuelto });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

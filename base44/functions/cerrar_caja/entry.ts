@@ -7,20 +7,34 @@ export default async function(req) {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'No autorizado' }, { status: 401 });
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const efectivo_contado = Number(body.efectivo_contado);
     const observaciones = body.observaciones || null;
+    const caja_id = body.caja_id || null;
     if (isNaN(efectivo_contado) || efectivo_contado < 0) {
       return Response.json({ error: 'Efectivo contado inválido' }, { status: 400 });
     }
 
-    const caja = await obtenerCajaAbierta(base44, user);
+    let caja = null;
+    if (caja_id) {
+      caja = await base44.asServiceRole.entities.Cajas.get(caja_id);
+      if (!caja) return Response.json({ error: 'Caja no encontrada' }, { status: 404 });
+      // Solo el usuario que abrió la caja o un administrador/superadmin pueden cerrarla
+      if (caja.usuario_apertura !== user.id && user.role !== 'admin' && user.role !== 'superadmin') {
+        return Response.json({ error: 'Solo el usuario que abrió la caja o un administrador pueden cerrarla' }, { status: 403 });
+      }
+    } else {
+      caja = await obtenerCajaAbierta(base44, user);
+    }
     if (!caja) return Response.json({ error: 'No hay caja abierta' }, { status: 400 });
+    if (caja.estado === 'CERRADA') {
+      return Response.json({ error: 'La caja ya está cerrada' }, { status: 400 });
+    }
 
     const r = await resumenCaja(base44, caja);
     const diferencia = parseFloat((efectivo_contado - r.efectivo_esperado).toFixed(2));
 
-    await base44.entities.Cajas.update(caja.id, {
+    await base44.asServiceRole.entities.Cajas.update(caja.id, {
       estado: 'CERRADA',
       fecha_cierre: new Date().toISOString(),
       usuario_cierre: user.id,
@@ -32,7 +46,7 @@ export default async function(req) {
       diferencia, observaciones
     });
 
-    await base44.entities.Movimientos_Caja.create({
+    await base44.asServiceRole.entities.Movimientos_Caja.create({
       caja_id: caja.id, tipo: 'CIERRE', usuario_id: user.id,
       nombre_usuario: user.full_name || user.email,
       fecha_hora: new Date().toISOString(), monto: parseFloat(efectivo_contado.toFixed(2)),

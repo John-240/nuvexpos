@@ -13,7 +13,7 @@ export default async function(req) {
     if (!Array.isArray(carrito) || carrito.length === 0) {
       return Response.json({ error: 'El carrito está vacío' }, { status: 400 });
     }
-    const metodosValidos = ['Efectivo', 'Tarjeta', 'Transferencia', 'SINPE', 'Otro', 'Fiado'];
+    const metodosValidos = ['EFECTIVO', 'TARJETA', 'SINPE', 'TRANSFERENCIA', 'OTRO', 'Fiado'];
     if (!metodosValidos.includes(metodo_pago)) {
       return Response.json({ error: 'Método de pago inválido' }, { status: 400 });
     }
@@ -53,7 +53,7 @@ export default async function(req) {
     const desc = Math.max(0, Number(descuento) || 0);
     monto_total = Math.max(0, monto_total - desc);
 
-    const estado = metodo_pago === 'Fiado' ? 'Pendiente' : 'Pagado';
+    const estado = metodo_pago === 'Fiado' ? 'Pendiente' : 'COMPLETADA';
     if (metodo_pago === 'Fiado') {
       const saldo = Number(cliente.saldo_pendiente) || 0;
       const limite = Number(cliente.limite_credito) || 0;
@@ -65,7 +65,7 @@ export default async function(req) {
     // Efectivo: validar dinero recibido y calcular vuelto
     let recibidoNum = null;
     let vuelto = 0;
-    if (metodo_pago === 'Efectivo') {
+    if (metodo_pago === 'EFECTIVO') {
       recibidoNum = Number(recibido);
       if (isNaN(recibidoNum) || recibidoNum < monto_total) {
         return Response.json({ error: 'El dinero recibido es inferior al total' }, { status: 400 });
@@ -78,6 +78,7 @@ export default async function(req) {
       fecha_hora: new Date().toISOString(),
       monto_total: parseFloat(monto_total.toFixed(2)),
       metodo_pago,
+      usuario_id: user.id,
       estado,
       cliente_id: metodo_pago === 'Fiado' ? cliente.id : null,
       caja_id: caja.id,

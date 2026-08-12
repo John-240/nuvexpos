@@ -38,7 +38,7 @@ export default async function(req) {
       const d = f ? new Date(f) : null;
       return d && d >= dayStart && d <= dayEnd;
     };
-    const ventasP = (ventas || []).filter((v) => v.estado === 'Pagado' && enRango(v.fecha_hora));
+    const ventasP = (ventas || []).filter((v) => (v.estado === 'COMPLETADA' || v.estado === 'Pagado') && enRango(v.fecha_hora));
     const porMetodo = (m) => ventasP.filter((v) => v.metodo_pago === m).reduce((s, v) => s + (Number(v.monto_total) || 0), 0);
     const totalVentas = ventasP.reduce((s, v) => s + (Number(v.monto_total) || 0), 0);
     const ingresos = (movs || []).filter((m) => m.tipo === 'INGRESO' && enRango(m.fecha_hora)).reduce((s, m) => s + (Number(m.monto) || 0), 0);
@@ -58,7 +58,7 @@ export default async function(req) {
       }
       const diasTxt = Object.entries(porDia).map(([k, val]) => `  ${k}: ${fmt(val)}`).join('\n') || '  Sin ventas';
       const maxDia = Object.entries(porDia).sort((a, b) => b[1] - a[1])[0];
-      const metodos = { Efectivo: porMetodo('Efectivo'), Tarjeta: porMetodo('Tarjeta'), SINPE: porMetodo('SINPE'), Transferencia: porMetodo('Transferencia'), Otro: porMetodo('Otro') };
+      const metodos = { EFECTIVO: porMetodo('EFECTIVO'), TARJETA: porMetodo('TARJETA'), SINPE: porMetodo('SINPE'), TRANSFERENCIA: porMetodo('TRANSFERENCIA'), OTRO: porMetodo('OTRO') };
       const masUsado = Object.entries(metodos).sort((a, b) => b[1] - a[1])[0];
       bodyText =
 `Reporte SEMANAL de caja - NuvexPos (${label})
@@ -71,11 +71,11 @@ Método más utilizado: ${masUsado ? masUsado[0] : '-'}
 Ventas por día:
 ${diasTxt}
 
-Efectivo: ${fmt(porMetodo('Efectivo'))}
-Tarjeta: ${fmt(porMetodo('Tarjeta'))}
+EFECTIVO: ${fmt(porMetodo('EFECTIVO'))}
+TARJETA: ${fmt(porMetodo('TARJETA'))}
 SINPE: ${fmt(porMetodo('SINPE'))}
-Transferencia: ${fmt(porMetodo('Transferencia'))}
-Otros: ${fmt(porMetodo('Otro'))}
+TRANSFERENCIA: ${fmt(porMetodo('TRANSFERENCIA'))}
+Otros: ${fmt(porMetodo('OTRO'))}
 Ingresos manuales: ${fmt(ingresos)}
 Retiros: ${fmt(retiros)}
 Devoluciones: ${fmt(devoluciones)}
@@ -88,11 +88,11 @@ Diferencias totales: ${fmt(diferencias)}
 `Reporte diario de caja - NuvexPos (${label})
 
 Total de ventas: ${fmt(totalVentas)} (${ventasP.length} ventas)
-Efectivo: ${fmt(porMetodo('Efectivo'))}
-Tarjeta: ${fmt(porMetodo('Tarjeta'))}
+EFECTIVO: ${fmt(porMetodo('EFECTIVO'))}
+TARJETA: ${fmt(porMetodo('TARJETA'))}
 SINPE: ${fmt(porMetodo('SINPE'))}
-Transferencia: ${fmt(porMetodo('Transferencia'))}
-Otros: ${fmt(porMetodo('Otro'))}
+TRANSFERENCIA: ${fmt(porMetodo('TRANSFERENCIA'))}
+Otros: ${fmt(porMetodo('OTRO'))}
 Ingresos manuales: ${fmt(ingresos)}
 Retiros: ${fmt(retiros)}
 Devoluciones: ${fmt(devoluciones)}
