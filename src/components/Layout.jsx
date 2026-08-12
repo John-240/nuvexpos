@@ -56,12 +56,12 @@ export default function Layout() {
             to={item.path}
             onClick={onNavigate}
             className={cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+              'flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors',
               active ? 'bg-emerald-500/15 text-emerald-300' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
             )}
           >
-            <Icon className="w-5 h-5" />
-            {item.label}
+            <Icon className="w-4 h-4 shrink-0" />
+            <span className="truncate">{item.label}</span>
           </Link>
         );
       })}
@@ -72,7 +72,7 @@ export default function Layout() {
     <div className="min-h-screen bg-slate-50 dark:bg-background flex">
       {/* Sidebar desktop */}
       <aside className="hidden md:flex w-64 flex-col bg-slate-900 text-slate-100 fixed inset-y-0 left-0 h-screen overflow-hidden">
-        <div className="px-6 py-6 border-b border-slate-800 shrink-0">
+        <div className="px-5 py-3 border-b border-slate-800 shrink-0">
           <Link to={esAdmin ? '/' : '/caja'} className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
               <Store className="w-5 h-5 text-white" />
@@ -92,7 +92,7 @@ export default function Layout() {
             Cerrar sesión
           </button>
         </div>
-        <nav className="flex-1 min-h-0 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 min-h-0 px-3 py-2 space-y-0.5 overflow-y-auto">
           <NavList />
         </nav>
         <div className="px-3 py-3 border-t border-slate-800 space-y-2 shrink-0">
