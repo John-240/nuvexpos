@@ -325,7 +325,7 @@ export default function PuntoVenta() {
                         <span className="text-xs text-emerald-600 font-medium">Vuelto: {formatCurrency(Number(recibido) - total)}</span>
                       )}
                     </div>
-                    <Input type="number" value={recibido} onChange={(e) => setRecibido(e.target.value)} placeholder="0" className="h-10" />
+                    <Input type="number" value={recibido} onChange={(e) => setRecibido(e.target.value)} onFocus={(e) => e.target.select()} placeholder="0" className="h-10" />
                   </div>
                 )}
               </div>
