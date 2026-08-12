@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -7,6 +7,9 @@ const ToastContext = createContext(null);
 const TOAST_DURATION = 4000;
 const FADE_DURATION = 300;
 const TOAST_LIMIT = 5;
+
+// Punto de montaje: el `toast` standalone delega aquí si el provider está activo.
+let _push = null;
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
@@ -36,12 +39,18 @@ export function ToastProvider({ children }) {
         closing: false,
       };
       setToasts((prev) => [t, ...prev].slice(0, TOAST_LIMIT));
-      // Auto-dismiss independiente por toast
+      // Auto-dismiss independiente por toast (4s por defecto)
       if (duration > 0) setTimeout(() => dismiss(id), duration);
       return { id, dismiss: () => dismiss(id) };
     },
     [dismiss]
   );
+
+  // Registra el push para que el `toast` standalone llegue al provider
+  useEffect(() => {
+    _push = toast;
+    return () => { _push = null; };
+  }, [toast]);
 
   return (
     <ToastContext.Provider value={{ toast, dismiss, toasts }}>
@@ -64,9 +73,10 @@ export function ToastProvider({ children }) {
               {t.description && <div className="text-sm opacity-90 leading-snug">{t.description}</div>}
             </div>
             <button
+              type="button"
               onClick={() => dismiss(t.id)}
               aria-label="Cerrar notificación"
-              className="shrink-0 rounded-md p-1 opacity-60 transition-opacity hover:opacity-100 focus:outline-none focus:opacity-100"
+              className="shrink-0 self-start rounded-md p-1.5 opacity-100 transition-colors hover:bg-black/10 focus:outline-none"
             >
               <X className="h-4 w-4" />
             </button>
@@ -79,6 +89,13 @@ export function ToastProvider({ children }) {
 
 export function useToast() {
   const ctx = useContext(ToastContext);
-  if (!ctx) return { toast: () => ({}), dismiss: () => {}, toasts: [] };
+  // Si no hay provider, usa el toast standalone (no-op seguro si el provider no montó)
+  if (!ctx) return { toast, dismiss: () => {}, toasts: [] };
   return ctx;
+}
+
+// Toast standalone: delega al provider si está montado (compatibilidad hacia atrás)
+export function toast(props = {}) {
+  if (_push) return _push(props);
+  return { id: "", dismiss: () => {} };
 }
