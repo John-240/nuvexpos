@@ -83,6 +83,15 @@ export default function Layout() {
             </div>
           </Link>
         </div>
+        <div className="px-3 pt-2 pb-1 shrink-0">
+          <button
+            onClick={() => logout()}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-rose-500/15 hover:text-rose-300 transition-colors border border-slate-800"
+          >
+            <LogOut className="w-4 h-4" />
+            Cerrar sesión
+          </button>
+        </div>
         <nav className="flex-1 min-h-0 px-3 py-4 space-y-1 overflow-y-auto">
           <NavList />
         </nav>
