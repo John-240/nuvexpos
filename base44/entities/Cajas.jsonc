@@ -1,0 +1,167 @@
+{
+  "name": "Cajas",
+  "type": "object",
+  "properties": {
+    "estado": {
+      "type": "string",
+      "enum": [
+        "ABIERTA",
+        "CERRADA"
+      ],
+      "default": "ABIERTA",
+      "title": "Estado"
+    },
+    "usuario_apertura": {
+      "type": "string",
+      "title": "Usuario que abri\u00f3"
+    },
+    "nombre_usuario_apertura": {
+      "type": "string",
+      "title": "Nombre del usuario que abri\u00f3"
+    },
+    "fecha_apertura": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha y hora de apertura"
+    },
+    "monto_inicial": {
+      "type": "number",
+      "default": 0,
+      "title": "Monto inicial"
+    },
+    "fecha_cierre": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha y hora de cierre"
+    },
+    "usuario_cierre": {
+      "type": "string",
+      "title": "Usuario que cerr\u00f3"
+    },
+    "nombre_usuario_cierre": {
+      "type": "string",
+      "title": "Nombre del usuario que cerr\u00f3"
+    },
+    "total_ventas": {
+      "type": "number",
+      "default": 0,
+      "title": "Total de ventas"
+    },
+    "total_efectivo": {
+      "type": "number",
+      "default": 0,
+      "title": "Total en efectivo"
+    },
+    "total_tarjeta": {
+      "type": "number",
+      "default": 0,
+      "title": "Total con tarjeta"
+    },
+    "total_sinpe": {
+      "type": "number",
+      "default": 0,
+      "title": "Total SINPE"
+    },
+    "total_transferencia": {
+      "type": "number",
+      "default": 0,
+      "title": "Total transferencia"
+    },
+    "otros_pagos": {
+      "type": "number",
+      "default": 0,
+      "title": "Otros pagos"
+    },
+    "ingresos_manuales": {
+      "type": "number",
+      "default": 0,
+      "title": "Ingresos manuales"
+    },
+    "retiros": {
+      "type": "number",
+      "default": 0,
+      "title": "Retiros"
+    },
+    "devoluciones": {
+      "type": "number",
+      "default": 0,
+      "title": "Devoluciones"
+    },
+    "efectivo_esperado": {
+      "type": "number",
+      "default": 0,
+      "title": "Efectivo esperado"
+    },
+    "efectivo_contado": {
+      "type": "number",
+      "default": 0,
+      "title": "Efectivo contado"
+    },
+    "diferencia": {
+      "type": "number",
+      "default": 0,
+      "title": "Diferencia"
+    },
+    "observaciones": {
+      "type": "string",
+      "title": "Observaciones"
+    }
+  },
+  "required": [
+    "estado",
+    "monto_inicial"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    }
+  }
+}

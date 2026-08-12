@@ -1,0 +1,85 @@
+{
+  "name": "Auditoria",
+  "type": "object",
+  "properties": {
+    "usuario_id": {
+      "type": "string",
+      "title": "Usuario"
+    },
+    "nombre_usuario": {
+      "type": "string",
+      "title": "Nombre del usuario"
+    },
+    "accion": {
+      "type": "string",
+      "title": "Acci\u00f3n"
+    },
+    "fecha_hora": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha y hora"
+    },
+    "entidad": {
+      "type": "string",
+      "title": "Entidad afectada"
+    },
+    "registro_afectado": {
+      "type": "string",
+      "title": "Registro afectado"
+    },
+    "informacion": {
+      "type": "string",
+      "title": "Informaci\u00f3n relevante"
+    }
+  },
+  "required": [
+    "accion"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    }
+  }
+}

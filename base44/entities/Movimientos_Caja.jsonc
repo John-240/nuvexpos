@@ -1,0 +1,112 @@
+{
+  "name": "Movimientos_Caja",
+  "type": "object",
+  "properties": {
+    "caja_id": {
+      "type": "string",
+      "title": "Caja"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "APERTURA",
+        "VENTA",
+        "INGRESO",
+        "RETIRO",
+        "DEVOLUCION",
+        "AJUSTE",
+        "CIERRE"
+      ],
+      "title": "Tipo de movimiento"
+    },
+    "metodo_pago": {
+      "type": "string",
+      "title": "M\u00e9todo de pago (ventas/devoluciones)"
+    },
+    "usuario_id": {
+      "type": "string",
+      "title": "Usuario"
+    },
+    "nombre_usuario": {
+      "type": "string",
+      "title": "Nombre del usuario"
+    },
+    "fecha_hora": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Fecha y hora"
+    },
+    "monto": {
+      "type": "number",
+      "default": 0,
+      "title": "Monto"
+    },
+    "motivo": {
+      "type": "string",
+      "title": "Motivo"
+    },
+    "referencia": {
+      "type": "string",
+      "title": "Referencia (venta_id, caja_id)"
+    },
+    "observaciones": {
+      "type": "string",
+      "title": "Observaciones"
+    }
+  },
+  "required": [
+    "caja_id",
+    "tipo",
+    "monto"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    }
+  }
+}
