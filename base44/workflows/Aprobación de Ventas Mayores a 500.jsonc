@@ -1,6 +1,6 @@
 {
   "name": "Aprobaci\u00f3n de Ventas Mayores a 500",
-  "description": "Cuando se registra una venta cuyo monto supera 500, env\u00eda una solicitud de aprobaci\u00f3n al gerente por correo y crea una alerta.",
+  "description": "Cuando se registra una venta, delega a solicitar_aprobacion_venta la decisi\u00f3n de notificar al gerente seg\u00fan el monto m\u00e1ximo configurado en la entidad Configuracion (default 50000).",
   "trigger": {
     "config": {
       "trigger_type": "entity",
@@ -9,7 +9,7 @@
         "create"
       ]
     },
-    "condition": "${ .trigger.data.monto_total > 500 }"
+    "condition": "${ true }"
   },
   "definition": {
     "document": {
@@ -33,7 +33,7 @@
           "then": "end",
           "x-base44": {
             "title": "Solicitar aprobaci\u00f3n al gerente",
-            "description": "Correo + alerta para venta > 500"
+            "description": "Eval\u00faa el monto m\u00e1ximo configurado y, si la venta lo supera, crea alerta y env\u00eda correo al gerente"
           }
         }
       }

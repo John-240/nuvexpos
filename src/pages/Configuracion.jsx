@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Users, Tag, CreditCard } from 'lucide-react';
+import { Users, Tag, CreditCard, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GestionUsuarios from '@/components/config/GestionUsuarios';
 import GestionCategorias from '@/components/config/GestionCategorias';
 import GestionMetodosPago from '@/components/config/GestionMetodosPago';
+import GestionConfiguracion from '@/components/config/GestionConfiguracion';
 
 const tabs = [
+  { id: 'general', label: 'General', icon: Settings, comp: GestionConfiguracion },
   { id: 'usuarios', label: 'Usuarios', icon: Users, comp: GestionUsuarios },
   { id: 'categorias', label: 'Categorías', icon: Tag, comp: GestionCategorias },
   { id: 'metodos', label: 'Métodos de pago', icon: CreditCard, comp: GestionMetodosPago },

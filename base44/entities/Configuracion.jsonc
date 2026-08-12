@@ -1,0 +1,30 @@
+{
+  "name": "Configuracion",
+  "type": "object",
+  "properties": {
+    "monto_maximo_venta": {
+      "type": "number",
+      "default": 50000,
+      "title": "Monto m\u00e1ximo de venta sin aprobaci\u00f3n"
+    }
+  },
+  "required": [],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

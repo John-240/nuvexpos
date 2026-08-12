@@ -21,6 +21,16 @@ export default async function(req) {
     const monto_total = venta.monto_total;
     const metodo_pago = venta.metodo_pago;
 
+    // Leer monto máximo configurable (entidad Configuracion). Default 50000 si no existe.
+    const cfgList = await base44.asServiceRole.entities.Configuracion.list();
+    const config = cfgList && cfgList[0];
+    const montoMaximo = config && config.monto_maximo_venta != null ? Number(config.monto_maximo_venta) : 50000;
+
+    // Solo generar alerta/solicitud si la venta supera el monto máximo configurado
+    if ((Number(monto_total) || 0) <= montoMaximo) {
+      return Response.json({ success: true, venta_id, skipped: true, monto_maximo: montoMaximo });
+    }
+
     const fmt = (n) => (Number(n) || 0).toLocaleString('es-CR', { style: 'currency', currency: 'CRC', maximumFractionDigits: 2 });
 
     const subject = `Solicitud de aprobación - Venta por ${fmt(monto_total)}`;
