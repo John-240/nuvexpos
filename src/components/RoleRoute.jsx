@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/AuthContext';
 // Los usuarios regulares (rol 'user') son redirigidos al Punto de Venta.
 export default function RoleRoute() {
   const { user } = useAuth();
-  const esAdmin = user?.role !== 'user';
-  if (!esAdmin) return <Navigate to="/venta" replace />;
+  const esAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+  if (!esAdmin) return <Navigate to="/caja" replace />;
   return <Outlet />;
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Store, LogOut, History, Wallet, Settings, Users } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Store, LogOut, History, Wallet, Settings, Users, Coins, ClipboardList } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { cn } from '@/lib/utils';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -8,8 +8,10 @@ import ThemeToggle from '@/components/ThemeToggle';
 const allNavItems = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard, admin: true },
   { label: 'Registro de Productos', path: '/productos', icon: Package, admin: true },
+  { label: 'Caja', path: '/caja', icon: Coins, admin: false },
   { label: 'Punto de Venta', path: '/venta', icon: ShoppingCart, admin: false },
   { label: 'Historial de Ventas', path: '/historial', icon: History, admin: true },
+  { label: 'Historial de Cajas', path: '/historial-cajas', icon: ClipboardList, admin: false },
   { label: 'Clientes', path: '/cobrar', icon: Users, admin: true },
   { label: 'Gastos', path: '/gastos', icon: Wallet, admin: true },
   { label: 'Configuración', path: '/configuracion', icon: Settings, admin: true },
@@ -19,7 +21,7 @@ export default function Layout() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const { logout, user } = useAuth();
-  const esAdmin = user?.role !== 'user';
+  const esAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const navItems = allNavItems.filter((i) => !i.admin || esAdmin);
 
   const NavList = ({ onNavigate }) => (
@@ -50,7 +52,7 @@ export default function Layout() {
       {/* Sidebar desktop */}
       <aside className="hidden md:flex w-64 flex-col bg-slate-900 text-slate-100 fixed inset-y-0 left-0">
         <div className="px-6 py-6 border-b border-slate-800">
-          <Link to={esAdmin ? '/' : '/venta'} className="flex items-center gap-2.5">
+          <Link to={esAdmin ? '/' : '/caja'} className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
               <Store className="w-5 h-5 text-white" />
             </div>
@@ -74,7 +76,7 @@ export default function Layout() {
 
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 inset-x-0 z-30 bg-slate-900 text-white px-4 h-14 flex items-center justify-between">
-        <Link to={esAdmin ? '/' : '/venta'} className="flex items-center gap-2">
+        <Link to={esAdmin ? '/' : '/caja'} className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
             <Store className="w-4 h-4 text-white" />
           </div>

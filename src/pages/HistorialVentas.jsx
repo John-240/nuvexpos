@@ -5,6 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/format';
 import VentaDetalleDialog from '@/components/ventas/VentaDetalleDialog';
+import AnularVentaDialog from '@/components/caja/AnularVentaDialog';
+import { useAuth } from '@/lib/AuthContext';
+import { Ban } from 'lucide-react';
 
 const METODOS = ['Efectivo', 'Tarjeta', 'Transferencia'];
 
@@ -16,6 +19,9 @@ export default function HistorialVentas() {
   const [metodo, setMetodo] = useState('');
   const [fechaBusqueda, setFechaBusqueda] = useState('');
   const [seleccionada, setSeleccionada] = useState(null);
+  const [anular, setAnular] = useState(null);
+  const { user } = useAuth();
+  const esAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   useEffect(() => {
     load();
@@ -145,7 +151,12 @@ export default function HistorialVentas() {
                       <span className="inline-block px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">{v.metodo_pago}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setSeleccionada(v); }}>Ver detalle</Button>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setSeleccionada(v); }}>Ver detalle</Button>
+                        {esAdmin && v.estado !== 'Anulada' && v.estado !== 'Devuelta' && (
+                          <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={(e) => { e.stopPropagation(); setAnular(v); }}><Ban className="w-3.5 h-3.5" /> Anular</Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -156,6 +167,7 @@ export default function HistorialVentas() {
       )}
 
       <VentaDetalleDialog venta={seleccionada} onClose={() => setSeleccionada(null)} />
+      <AnularVentaDialog venta={anular} onClose={() => setAnular(null)} onDone={() => { setAnular(null); load(); }} />
     </div>
   );
 }

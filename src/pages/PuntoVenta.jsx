@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Send, CheckCircle2, X, AlertCircle, Wallet, HandCoins } from 'lucide-react';
+import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Send, CheckCircle2, X, AlertCircle, Wallet, HandCoins, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency } from '@/lib/format';
@@ -9,12 +9,14 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/lib/AuthContext';
 import ClienteFiadoSelector from '@/components/ventas/ClienteFiadoSelector';
 
 const ICONOS_PAGO = { Efectivo: Banknote, Tarjeta: CreditCard, Transferencia: Send };
 
 export default function PuntoVenta() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [productos, setProductos] = useState([]);
   const [metodos, setMetodos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,8 @@ export default function PuntoVenta() {
   const [clienteFiado, setClienteFiado] = useState(null);
   const [procesando, setProcesando] = useState(false);
   const [ventaExitosa, setVentaExitosa] = useState(null);
+  const [cajaAbierta, setCajaAbierta] = useState(true);
+  const [recibido, setRecibido] = useState('');
 
   useEffect(() => {
     load();
@@ -40,6 +44,12 @@ export default function PuntoVenta() {
       setMetodos(activos);
       if (activos.length && !activos.some((m) => m.nombre === metodoPago)) {
         setMetodoPago(activos[0].nombre);
+      }
+      try {
+        const cajaRes = await base44.functions.invoke('resumen_caja', {});
+        setCajaAbierta(!!cajaRes.data?.abierta);
+      } catch {
+        setCajaAbierta(false);
       }
     } finally {
       setLoading(false);
@@ -116,17 +126,28 @@ export default function PuntoVenta() {
 
   const finalizarVenta = async () => {
     if (carrito.length === 0) return;
+    if (!cajaAbierta) {
+      toast({ title: 'Caja cerrada', description: 'Debe abrir una caja antes de vender', variant: 'destructive' });
+      return;
+    }
+    const esEfectivo = metodoPago === 'Efectivo';
+    const recibidoNum = Number(recibido) || 0;
+    if (esEfectivo && recibidoNum < total) {
+      toast({ title: 'Efectivo insuficiente', description: 'El dinero recibido es menor al total', variant: 'destructive' });
+      return;
+    }
     if (esFiado && (!clienteFiado || total > creditoDisponible)) {
       toast({ title: 'No se puede completar la venta a crédito', description: !clienteFiado ? 'Seleccione un cliente' : 'El crédito disponible es insuficiente', variant: 'destructive' });
       return;
     }
     setProcesando(true);
     try {
-      const res = await base44.functions.invoke('finalizar_venta', { carrito, metodo_pago: metodoPago, cliente_id: esFiado ? clienteFiado.id : null });
-      setVentaExitosa({ id: res.data.venta_id, total: res.data.monto_total, alertas: res.data.alertas || [] });
+      const res = await base44.functions.invoke('finalizar_venta', { carrito, metodo_pago: metodoPago, cliente_id: esFiado ? clienteFiado.id : null, recibido: esEfectivo ? recibidoNum : null });
+      setVentaExitosa({ id: res.data.venta_id, total: res.data.monto_total, vuelto: res.data.vuelto, metodo: metodoPago, alertas: res.data.alertas || [] });
       setCarrito([]);
       setBusqueda('');
       setClienteFiado(null);
+      setRecibido('');
       await load();
     } catch (err) {
       toast({ title: 'Error al procesar la venta', description: err.message, variant: 'destructive' });
@@ -149,6 +170,15 @@ export default function PuntoVenta() {
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Punto de Venta</h1>
         <p className="text-slate-500 mt-1">Registra una nueva venta</p>
       </div>
+
+      {!cajaAbierta && (
+        <div className="mb-5 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-amber-700 text-sm font-medium">
+            <Lock className="w-4 h-4" /> No hay caja abierta. Debe abrir una caja para registrar ventas.
+          </div>
+          <a href="/caja"><Button size="sm" className="bg-amber-600 hover:bg-amber-700">Abrir caja</Button></a>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Buscador + resultados */}
@@ -287,6 +317,17 @@ export default function PuntoVenta() {
                     <ClienteFiadoSelector value={clienteFiado} onChange={setClienteFiado} total={total} />
                   </div>
                 )}
+                {metodoPago === 'Efectivo' && (
+                  <div className="pt-1 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-slate-500 font-medium">Dinero recibido</label>
+                      {Number(recibido) > 0 && Number(recibido) >= total && (
+                        <span className="text-xs text-emerald-600 font-medium">Vuelto: {formatCurrency(Number(recibido) - total)}</span>
+                      )}
+                    </div>
+                    <Input type="number" value={recibido} onChange={(e) => setRecibido(e.target.value)} placeholder="0" className="h-10" />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-between pt-1">
@@ -296,7 +337,7 @@ export default function PuntoVenta() {
 
               <Button
                 onClick={finalizarVenta}
-                disabled={carrito.length === 0 || procesando || !fiadoValido}
+                disabled={carrito.length === 0 || procesando || !fiadoValido || !cajaAbierta || (metodoPago === 'Efectivo' && (Number(recibido) || 0) < total)}
                 className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-base font-semibold"
               >
                 {procesando ? (
@@ -324,7 +365,10 @@ export default function PuntoVenta() {
           <div className="space-y-3 text-center">
             <p className="text-sm text-slate-500">Venta #{ventaExitosa?.id?.slice(-6)}</p>
             <p className="text-3xl font-bold text-slate-900">{formatCurrency(ventaExitosa?.total)}</p>
-            <p className="text-sm text-slate-500">Método: {metodoPago}</p>
+            <p className="text-sm text-slate-500">Método: {ventaExitosa?.metodo || metodoPago}</p>
+            {ventaExitosa?.vuelto > 0 && (
+              <p className="text-sm font-medium text-emerald-600">Vuelto: {formatCurrency(ventaExitosa.vuelto)}</p>
+            )}
             {ventaExitosa?.alertas?.length > 0 && (
               <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-100 text-left">
                 <div className="flex items-center gap-1.5 text-amber-700 font-medium text-sm mb-1">

@@ -1,0 +1,47 @@
+{
+  "description": "Env\u00eda por correo el reporte semanal de caja a los administradores cada lunes (21:00)",
+  "name": "Reporte Semanal de Caja",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 21 * * 1",
+      "one_time_date": null,
+      "timezone": "America/Costa_Rica",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "reporte_semanal_caja",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "enviar_reporte": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "reporte_caja",
+            "args": {
+              "periodo": "semanal"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Enviar reporte semanal",
+            "description": "Reporte semanal de caja por correo"
+          }
+        }
+      }
+    ]
+  }
+}

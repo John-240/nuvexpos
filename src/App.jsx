@@ -22,6 +22,8 @@ import HistorialVentas from '@/pages/HistorialVentas';
 import Gastos from '@/pages/Gastos';
 import Configuracion from '@/pages/Configuracion';
 import CobrarDeuda from '@/pages/CobrarDeuda';
+import Caja from '@/pages/Caja';
+import HistorialCajas from '@/pages/HistorialCajas';
 import { ThemeProvider } from 'next-themes';
 
 const AuthenticatedApp = () => {
@@ -58,6 +60,8 @@ const AuthenticatedApp = () => {
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route element={<Layout />}>
           <Route path="/venta" element={<PuntoVenta />} />
+          <Route path="/caja" element={<Caja />} />
+          <Route path="/historial-cajas" element={<HistorialCajas />} />
           <Route element={<RoleRoute />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/productos" element={<RegistroProductos />} />
