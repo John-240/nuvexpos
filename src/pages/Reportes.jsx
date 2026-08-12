@@ -32,6 +32,8 @@ export default function Reportes() {
   const [gastos, setGastos] = useState([]);
   const [cajas, setCajas] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [detalles, setDetalles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fechaDia, setFechaDia] = useState(new Date().toISOString().slice(0, 10));
   const [inicioSemana, setInicioSemana] = useState(startOfWeek(new Date()).toISOString().slice(0, 10));
@@ -40,13 +42,15 @@ export default function Reportes() {
 
   const load = async () => {
     try {
-      const [v, g, c, m] = await Promise.all([
+      const [v, g, c, m, p, d] = await Promise.all([
         base44.entities.Ventas.list('-fecha_hora', 1000),
         base44.entities.Gastos.list('-fecha', 500),
         base44.entities.Cajas.list('-fecha_apertura', 200),
         base44.entities.Movimientos_Caja.list('-fecha_hora', 1000),
+        base44.entities.Productos.list(),
+        base44.entities.Detalles_Venta.list('-created_date', 2000),
       ]);
-      setVentas(v); setGastos(g); setCajas(c); setMovimientos(m);
+      setVentas(v); setGastos(g); setCajas(c); setMovimientos(m); setProductos(p); setDetalles(d);
     } finally { setLoading(false); }
   };
 
@@ -79,10 +83,15 @@ export default function Reportes() {
     const devoluciones = movs.filter((x) => x.tipo === 'DEVOLUCION').reduce((s, x) => s + (Number(x.monto) || 0), 0);
     const totalVentas = v.reduce((s, x) => s + (Number(x.monto_total) || 0), 0);
     const totalGastos = g.reduce((s, x) => s + (Number(x.monto) || 0), 0);
+    const ventaIds = new Set(v.map((x) => x.id));
+    const costoMap = new Map(productos.map((p) => [p.id, p.precio_costo || 0]));
+    const cogs = detalles
+      .filter((d) => ventaIds.has(d.venta_id))
+      .reduce((s, d) => s + (d.cantidad_vendida || 0) * (costoMap.get(d.producto_id) || 0), 0);
     const cajasCerradas = caj.filter((x) => x.estado === 'CERRADA');
     const diferencias = cajasCerradas.reduce((s, x) => s + (Number(x.diferencia) || 0), 0);
-    return { v, g, dataMetodos, ingresos, retiros, devoluciones, totalVentas, totalGastos, caj, cajasCerradas, diferencias, cantidad: v.length };
-  }, [ventasValidas, gastos, cajas, movimientos, fechaDia]);
+    return { v, g, dataMetodos, ingresos, retiros, devoluciones, totalVentas, totalGastos, cogs, caj, cajasCerradas, diferencias, cantidad: v.length };
+  }, [ventasValidas, gastos, cajas, movimientos, productos, detalles, fechaDia]);
 
   // === REPORTE SEMANAL ===
   const semana = useMemo(() => {
@@ -153,9 +162,10 @@ export default function Reportes() {
             <Card label="Ingresos manuales" value={formatCurrency(dia.ingresos)} color="text-emerald-600" />
             <Card label="Retiros" value={formatCurrency(dia.retiros)} color="text-amber-600" />
             <Card label="Devoluciones" value={formatCurrency(dia.devoluciones)} color="text-amber-600" />
+            <Card label="Costo de productos" value={formatCurrency(dia.cogs)} color="text-rose-600" />
             <Card label="Gastos" value={formatCurrency(dia.totalGastos)} color="text-red-600" />
             <Card label="Diferencias de caja" value={`${dia.diferencia < 0 ? '-' : '+'}${formatCurrency(Math.abs(dia.diferencia))}`} color={Math.abs(dia.diferencia) < 0.01 ? 'text-emerald-600' : 'text-amber-600'} />
-            <Card label="Utilidad neta" value={formatCurrency(dia.totalVentas - dia.totalGastos)} color="text-slate-900" />
+            <Card label="Utilidad neta" value={formatCurrency(dia.totalVentas - dia.cogs - dia.totalGastos)} color="text-emerald-700" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

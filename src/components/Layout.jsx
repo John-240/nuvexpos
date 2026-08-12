@@ -83,7 +83,7 @@ export default function Layout() {
             </div>
           </Link>
         </div>
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           <NavList />
         </nav>
         <div className="px-3 py-3 border-t border-slate-800 space-y-2">

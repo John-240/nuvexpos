@@ -17,8 +17,8 @@ export default function GestionUsuarios() {
 
   const load = async () => {
     try {
-      const data = await base44.entities.User.list();
-      setUsuarios(data);
+      const res = await base44.functions.invoke('gestionar_usuarios', { accion: 'listar' });
+      setUsuarios(res.data.usuarios || []);
     } catch (e) {
       toast({ title: 'Error al cargar usuarios', description: e.message, variant: 'destructive' });
     } finally {
@@ -33,7 +33,7 @@ export default function GestionUsuarios() {
       return;
     }
     try {
-      await base44.entities.User.update(u.id, { role: nuevoRol });
+      await base44.functions.invoke('gestionar_usuarios', { accion: 'cambiar_rol', usuario_id: u.id, rol: nuevoRol });
       toast({ title: 'Rol actualizado', description: `${u.email} ahora es ${nuevoRol === 'admin' ? 'administrador' : 'usuario'}` });
       await load();
     } catch (e) {
